@@ -1,15 +1,28 @@
-# cherri
+# 🍒 cherri
 
-To install dependencies:
+**WIP** - Automated cherry-picking for PRs
+
+## Setup
 
 ```bash
 bun install
+bun link
 ```
 
-To run:
+## Dev
 
 ```bash
-bun run index.ts
+bun run dev
+
+# Format
+bun run format
 ```
 
-This project was created using `bun init` in bun v1.2.0. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+## Progress
+
+- [x] Basic CLI setup
+- [ ] GitHub API integration
+- [ ] Git operations
+- [ ] Cherry-pick logic via emoji
+- [ ] State management
+- [ ] Conflict handling
