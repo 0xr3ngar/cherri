@@ -2,10 +2,9 @@
     "name": "cherri",
     "description": "Automated cherry-picking for PRs",
     "bin": {
-        "cherri": "./src/cli.ts"
+        "cherri": "./src/index.ts"
     },
     "scripts": {
-        "dev": "bun --watch src/cli.ts",
         "lint": "biome check .",
         "format": "biome format --write ./src/"
     },
@@ -21,6 +20,7 @@
         "@octokit/rest": "^22.0.0",
         "chalk": "^5.5.0",
         "commander": "^14.0.0",
-        "execa": "^9.6.0"
+        "execa": "^9.6.0",
+        "ora": "^8.2.0"
     }
 }
