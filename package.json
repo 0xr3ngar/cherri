@@ -7,7 +7,7 @@
     "scripts": {
         "dev": "bun --watch src/cli.ts",
         "lint": "biome check .",
-        "format": "biome format --write ./src"
+        "format": "biome format --write ./src/"
     },
     "type": "module",
     "devDependencies": {

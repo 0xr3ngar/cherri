@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
-import { Command } from "commander";
 import chalk from "chalk";
+import { Command } from "commander";
 
 const program = new Command();
 
