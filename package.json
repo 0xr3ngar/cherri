@@ -1,0 +1,26 @@
+{
+    "name": "cherri",
+    "description": "Automated cherry-picking for PRs",
+    "bin": {
+        "cherri": "./src/cli.ts"
+    },
+    "scripts": {
+        "dev": "bun --watch src/cli.ts",
+        "lint": "biome check .",
+        "format": "biome format --write ./src"
+    },
+    "type": "module",
+    "devDependencies": {
+        "@biomejs/biome": "^2.1.4",
+        "@types/bun": "latest"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "@octokit/rest": "^22.0.0",
+        "chalk": "^5.5.0",
+        "commander": "^14.0.0",
+        "execa": "^9.6.0"
+    }
+}
