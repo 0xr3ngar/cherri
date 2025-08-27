@@ -1,5 +1,5 @@
 {
-    "name": "cheri",
+    "name": "cherri",
     "description": "Automated cherry-picking for PRs",
     "version": "1.0.0",
     "license": "MIT",
@@ -9,7 +9,7 @@
         "README.md"
     ],
     "bin": {
-        "cheri": "./src/index.ts"
+        "cherri": "./src/index.ts"
     },
     "engines": {
         "node": ">=14.0.0",
@@ -22,13 +22,13 @@
         "build": "bun build ./src/index.ts --outdir dist --target node --minify --sourcemap"
     },
     "type": "module",
-    "homepage": "https://github.com/bnn16/cheri",
+    "homepage": "https://github.com/bnn16/cherri",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/bnn16/cheri.git"
+        "url": "git+https://github.com/bnn16/cherri.git"
     },
     "bugs": {
-        "url": "https://github.com/bnn16/cheri/issues"
+        "url": "https://github.com/bnn16/cherri/issues"
     },
     "devDependencies": {
         "@biomejs/biome": "^2.1.4",
