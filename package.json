@@ -1,15 +1,35 @@
 {
     "name": "cheri",
     "description": "Automated cherry-picking for PRs",
+    "version": "1.0.0",
+    "license": "MIT",
+    "files": [
+        "dist",
+        "LICENSE",
+        "README.md"
+    ],
     "bin": {
         "cheri": "./src/index.ts"
+    },
+    "engines": {
+        "node": ">=14.0.0",
+        "bun": ">=1.0.0"
     },
     "scripts": {
         "lint": "biome check .",
         "format": "biome format --write ./src/",
-        "knip": "knip"
+        "knip": "knip",
+        "build": "bun build ./src/index.ts --outdir dist --target node --minify --sourcemap"
     },
     "type": "module",
+    "homepage": "https://github.com/bnn16/cheri",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/bnn16/cheri.git"
+    },
+    "bugs": {
+        "url": "https://github.com/bnn16/cheri/issues"
+    },
     "devDependencies": {
         "@biomejs/biome": "^2.1.4",
         "@types/bun": "latest",
