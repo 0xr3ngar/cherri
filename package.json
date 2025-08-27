@@ -6,12 +6,16 @@
     },
     "scripts": {
         "lint": "biome check .",
-        "format": "biome format --write ./src/"
+        "format": "biome format --write ./src/",
+        "knip": "knip"
     },
     "type": "module",
     "devDependencies": {
         "@biomejs/biome": "^2.1.4",
-        "@types/bun": "latest"
+        "@types/bun": "latest",
+        "@types/node": "^24.3.0",
+        "knip": "^5.63.0",
+        "typescript": "^5.9.2"
     },
     "peerDependencies": {
         "typescript": "^5.0.0"
@@ -20,7 +24,6 @@
         "@octokit/rest": "^22.0.0",
         "chalk": "^5.5.0",
         "commander": "^14.0.0",
-        "execa": "^9.6.0",
         "ora": "^8.2.0"
     }
 }
