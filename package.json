@@ -1,7 +1,8 @@
 {
     "name": "cherri",
     "description": "Automated cherry-picking for PRs",
-    "version": "1.0.1",
+    "version": "1.0.2",
+    "main": "dist/index.js",
     "license": "MIT",
     "files": [
         "dist",
@@ -9,7 +10,7 @@
         "README.md"
     ],
     "bin": {
-        "cherri": "./src/index.ts"
+        "cherri": "./dist/index.js"
     },
     "engines": {
         "node": ">=14.0.0",
