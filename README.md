@@ -1,14 +1,14 @@
-# 🍒 Cheri
+# 🍒 Cherri
 
 > Cherry-pick PRs with ease! Automatically cherry-pick merged pull requests marked with a specific emoji to your target branch.
 
 ## About the Name
 
-**Cheri**, a variant of the French *chérie* ("darling" or "to cherish"), also evokes the cherry fruit, symbolizing good fortune and new beginnings—perfect for a tool that seamlessly integrates valuable changes into your project.
+**Cherri**, a variant of the French *chérie* ("darling" or "to cherish"), also evokes the cherry fruit, symbolizing good fortune and new beginnings—perfect for a tool that seamlessly integrates valuable changes into your project.
 
-## What is Cheri?
+## What is Cherri?
 
-Cheri is a CLI tool that automates the process of cherry-picking commits from merged pull requests. It searches for PRs with a specific emoji (default: 🍒) in their title and cherry-picks all commits from those PRs to your target branch.
+Cherri is a CLI tool that automates the process of cherry-picking commits from merged pull requests. It searches for PRs with a specific emoji (default: 🍒) in their title and cherry-picks all commits from those PRs to your target branch.
 
 Perfect for:
 - Backporting features to release branches
@@ -22,21 +22,21 @@ Install Cheri globally using your preferred package manager:
 
 ```bash
 # Using Bun
-bun install -g cheri
+bun install -g cherri
 
 # Using npm
-npm install -g cheri
+npm install -g cherri
 
 # Using Deno
-deno install -g cheri
+deno install -g cherri
 ```
 
 Or, clone and set up manually:
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
-cd cheri
+git clone https://www.github.com/bnn16/cherri
+cd cherri
 
 # Install dependencies (using Bun)
 bun install
@@ -74,7 +74,7 @@ chmod +x ./index.ts
 ### Basic Command
 
 ```bash
-cheri -o <owner> -r <repo> -t <target-branch>
+cherri -o <owner> -r <repo> -t <target-branch>
 ```
 
 ### Options
@@ -91,17 +91,17 @@ cheri -o <owner> -r <repo> -t <target-branch>
 
 #### Basic usage - cherry-pick to release branch
 ```bash
-cheri -o facebook -r react -t release-18.x
+cherri -o facebook -r react -t release-18.x
 ```
 
 #### Look back 3 months for PRs
 ```bash
-cheri -o microsoft -r vscode -t release/1.85 -s 3
+cherri -o microsoft -r vscode -t release/1.85 -s 3
 ```
 
 #### Use a custom emoji marker
 ```bash
-cheri -o your-org -r your-repo -t stable --icon "🚀"
+cherri -o your-org -r your-repo -t stable --icon "🚀"
 ```
 
 ## How It Works
