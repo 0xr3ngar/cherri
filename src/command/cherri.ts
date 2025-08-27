@@ -114,8 +114,11 @@ const cherriCommand = async ({
         console.log(chalk.gray(`\n  PR #${pr.number}: ${pr.title}`));
 
         for (const commit of commits) {
+            const escapedMessage = commit.commit.message
+                .split("\n")[0]
+                .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
             const exists = execSync(
-                `git log --grep="${commit.commit.message.split("\n")[0]}" --oneline -1`,
+                `git log --grep="${escapedMessage}" --oneline -1`,
                 { encoding: "utf8", stdio: "pipe" },
             ).trim();
 
