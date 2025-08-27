@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 import { Command } from "commander";
 import { cherriCommand } from "./command/cherri";
 
@@ -7,7 +7,7 @@ const program = new Command();
 program
     .name("cherri")
     .description("Automated cherry-picking for PRs marked with 🍒")
-    .version("1.0.2");
+    .version("1.0.4");
 
 program
     .requiredOption("-o, --owner <owner>", "GitHub repository owner")
