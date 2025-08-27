@@ -1,8 +1,8 @@
 {
-    "name": "cherri",
+    "name": "cheri",
     "description": "Automated cherry-picking for PRs",
     "bin": {
-        "cherri": "./src/index.ts"
+        "cheri": "./src/index.ts"
     },
     "scripts": {
         "lint": "biome check .",
