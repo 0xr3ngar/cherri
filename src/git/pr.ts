@@ -1,118 +1,56 @@
 import type { Endpoints } from "@octokit/types";
-import { Octokit } from "@octokit/rest";
-import type { Ora } from "ora";
-import { formatPrError, formatPrProgress, formatPrSuccess } from "../ui";
+import { messages, spinners } from "../ui";
 
 type PullsListResponse =
     Endpoints["GET /repos/{owner}/{repo}/pulls"]["response"];
 
 interface GetAllPullRequestsOptions {
-    client: Octokit;
+    // TODO: replace any with Octokit when github fixes their typing for GET /search/issues
+    // https://docs.github.com/rest/search/search#search-issues-and-pull-requests
+    client: any;
     owner: string;
     repo: string;
-    monthLimit: number;
-    spinner: Ora;
+    icon: string;
+    sinceDate: Date;
 }
 
-type Counters = {
-    prLength: number;
-    pageCount: number;
-};
-
-interface PaginateCallbackOptions {
-    cutoffDate: Date;
-    counters: Counters;
-    spinner: Ora;
-    timeframe: string;
-}
-
-const createPaginateCallback = ({
-    cutoffDate,
-    counters,
-    spinner,
-    timeframe,
-}: PaginateCallbackOptions) => {
-    return (response: PullsListResponse, done: () => void) => {
-        const filteredPRs = response.data.filter(
-            (pr) => new Date(pr.created_at) >= cutoffDate,
-        );
-
-        counters.prLength += filteredPRs.length;
-        counters.pageCount++;
-
-        spinner.text = formatPrProgress({
-            fetched: counters.prLength,
-            pages: counters.pageCount,
-        });
-
-        const isCreatedOverLimit = response.data.find(
-            (pr) => new Date(pr.created_at) < cutoffDate,
-        );
-
-        if (isCreatedOverLimit) {
-            spinner.succeed(
-                formatPrSuccess({
-                    count: counters.prLength,
-                    timeframe,
-                }),
-            );
-            done();
-        }
-
-        return filteredPRs;
-    };
-};
-
-const getAllPullRequests = async ({
+const searchPullRequestsWithIcon = async ({
     client,
     owner,
     repo,
-    monthLimit,
-    spinner,
+    icon,
+    sinceDate,
 }: GetAllPullRequestsOptions) => {
-    const cutoffDate = new Date();
-    cutoffDate.setMonth(cutoffDate.getMonth() - monthLimit);
-
-    const monthSuffix = monthLimit > 1 ? "s" : "";
-    const timeframe = `${monthLimit} month${monthSuffix}`;
-
-    const counters = { prLength: 0, pageCount: 0 };
-
+    const spinner = spinners.fetchPRs({
+        timeframe: sinceDate.toLocaleDateString(),
+    });
     spinner.start();
 
     try {
-        const result = await client.paginate(
-            "GET /repos/{owner}/{repo}/pulls",
-            {
-                owner,
-                state: "all",
-                sort: "created",
-                direction: "desc",
-                repo,
-                per_page: 100,
-            },
-            createPaginateCallback({
-                cutoffDate,
-                counters,
-                spinner,
-                timeframe,
+        const dateString = sinceDate.toISOString().split("T")[0];
+        const result = await client.paginate("GET /search/issues", {
+            q: `repo:${owner}/${repo} is:pr is:merged "${icon}" in:title merged:>=${dateString}`,
+            sort: "created",
+            order: "desc",
+            per_page: 100,
+            advanced_search: true,
+        });
+
+        spinner.succeed(
+            messages.prSuccess({
+                count: result.length,
+                timeframe: sinceDate.toLocaleDateString(),
             }),
         );
 
-        // in case callback never calls done()
-        if (spinner.isSpinning) {
-            spinner.succeed(
-                formatPrSuccess({ count: counters.prLength, timeframe }),
-            );
-        }
-
-        return result;
+        // TODO: remove cast when github
+        return result as PullsListResponse["data"];
     } catch (error) {
         spinner.fail(
-            formatPrError({ message: `Failed to fetch PRs: ${error}` }),
+            messages.error({ message: `Failed to fetch PRs: ${error}` }),
         );
         throw error;
     }
 };
 
-export { getAllPullRequests };
+export { searchPullRequestsWithIcon };
