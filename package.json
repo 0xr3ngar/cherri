@@ -1,7 +1,7 @@
 {
     "name": "cherri",
     "description": "Automated cherry-picking for PRs",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "main": "dist/index.js",
     "license": "MIT",
     "files": [
