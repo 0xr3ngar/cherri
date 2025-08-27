@@ -1,5 +1,10 @@
 import { Octokit } from "@octokit/rest";
-import { getAllPullRequests } from "./pr";
+import {
+    getLatestCommitFromBranch,
+    getAllCommitsFromPullRequest,
+    cherryPickCommit,
+} from "./commit";
+import { searchPullRequestsWithIcon } from "./pr";
 
 interface GithubClientOptions {
     token: string;
@@ -11,4 +16,10 @@ const getGithubClient = ({ token }: GithubClientOptions) => {
     });
 };
 
-export { getGithubClient, getAllPullRequests };
+export {
+    getGithubClient,
+    searchPullRequestsWithIcon,
+    cherryPickCommit,
+    getLatestCommitFromBranch,
+    getAllCommitsFromPullRequest,
+};
