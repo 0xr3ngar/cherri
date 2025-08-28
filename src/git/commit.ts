@@ -34,40 +34,6 @@ interface ConflictResolution {
     action: "continue" | "skip" | "abort";
 }
 
-const getLatestCommitFromBranch = async ({
-    client,
-    owner,
-    repo,
-    branch,
-    spinner,
-}: GetLatestCommitFromBranchOptions) => {
-    spinner.start();
-
-    try {
-        const response = await client.repos.getBranch({
-            owner,
-            repo,
-            branch,
-        });
-
-        spinner.succeed(
-            messages.findCommitSuccess({
-                branch,
-                sha: response.data.commit.sha,
-                date: assertDefined(
-                    response.data.commit.commit.author?.date,
-                    "Commit date is undefined",
-                ),
-            }),
-        );
-
-        return response.data.commit;
-    } catch (error) {
-        spinner.fail(messages.error({ message: `No commit found : ${error}` }));
-        throw error;
-    }
-};
-
 const getAllCommitsFromPullRequest = async ({
     client,
     owner,
@@ -294,6 +260,5 @@ const cherryPickCommit = async (commit: Commit): Promise<CherryPickResult> => {
 
 export {
     getAllCommitsFromPullRequest,
-    getLatestCommitFromBranch,
     cherryPickCommit,
 };

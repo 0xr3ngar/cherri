@@ -4,26 +4,22 @@ import {
     cherryPickCommit,
     getAllCommitsFromPullRequest,
     getGithubClient,
-    getLatestCommitFromBranch,
     searchPullRequestsWithIcon,
 } from "../git";
-import { displays, printLogo, spinners } from "../ui";
-import { assertDefined } from "../util/assert";
+import { displays, printLogo } from "../ui";
 
 interface CherriCommandOptions {
     owner: string;
     repo: string;
-    target: string;
     icon: string;
-    since: string;
+    since?: string;
 }
 
 const cherriCommand = async ({
     owner,
     repo,
-    target,
     icon,
-    since,
+    since = "1",
 }: CherriCommandOptions) => {
     printLogo({ icon });
 
@@ -35,29 +31,15 @@ const cherriCommand = async ({
         token: process.env.GITHUB_TOKEN,
     });
 
-    const latestCommitSpinner = spinners.fetchCommit({ branch: target });
-    const latestTarget = await getLatestCommitFromBranch({
-        client,
-        owner,
-        repo,
-        branch: target,
-        spinner: latestCommitSpinner,
-    });
-
-    const latestDate = assertDefined(
-        latestTarget.commit.author?.date,
-        "Latest commit date is undefined",
-    );
-
+    const cutoffDate = new Date();
     const sinceMonths = parseInt(since, 10);
-    const sinceDate = new Date();
-    sinceDate.setMonth(sinceDate.getMonth() - sinceMonths);
 
-    // TODO: this is a shady approach, we assume that the latest commit is not a new commit added manually after
-    // the last picking session. a better approach would be to store the last picked commit sha in a file and have a cache??
-    // for each target branch in like a .cherri file? for now, this will do
-    const cutoffDate = new Date(
-        Math.max(new Date(latestDate).getTime(), sinceDate.getTime()),
+    cutoffDate.setMonth(cutoffDate.getMonth() - sinceMonths);
+
+    console.log(
+        chalk.cyan(
+            `  Cutoff date to ${chalk.bold(cutoffDate.toDateString())}\n`,
+        ),
     );
 
     const pullRequests = await searchPullRequestsWithIcon({

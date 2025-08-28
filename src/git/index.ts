@@ -1,9 +1,5 @@
 import { Octokit } from "@octokit/rest";
-import {
-    getLatestCommitFromBranch,
-    getAllCommitsFromPullRequest,
-    cherryPickCommit,
-} from "./commit";
+import { getAllCommitsFromPullRequest, cherryPickCommit } from "./commit";
 import { searchPullRequestsWithIcon } from "./pr";
 
 interface GithubClientOptions {
@@ -20,6 +16,5 @@ export {
     getGithubClient,
     searchPullRequestsWithIcon,
     cherryPickCommit,
-    getLatestCommitFromBranch,
     getAllCommitsFromPullRequest,
 };
