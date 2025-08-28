@@ -12,7 +12,6 @@ program
 program
     .requiredOption("-o, --owner <owner>", "GitHub repository owner")
     .requiredOption("-r, --repo <repo>", "GitHub repository")
-    .requiredOption("-t, --target <branch>", "Target branch")
     .option(
         "-s, --since <months>",
         "Number of months to look back for PRs",
