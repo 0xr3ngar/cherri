@@ -1,18 +1,10 @@
+import { execSync } from "node:child_process";
 import type { Octokit } from "@octokit/rest";
 import type { Endpoints } from "@octokit/types";
 import chalk from "chalk";
-import { execSync } from "child_process";
 import type { Ora } from "ora";
-import { messages, spinners } from "../ui";
+import { spinners } from "../ui";
 import { assertDefined } from "../util/assert";
-
-interface GetLatestCommitFromBranchOptions {
-    client: Octokit;
-    owner: string;
-    repo: string;
-    branch: string;
-    spinner: Ora;
-}
 
 interface GetAllCommitsFromPullRequestOptions {
     client: Octokit;
@@ -21,7 +13,7 @@ interface GetAllCommitsFromPullRequestOptions {
     pullNumber: number;
 }
 
-type Commit =
+export type Commit =
     Endpoints["GET /repos/{owner}/{repo}/commits/{ref}"]["response"]["data"];
 
 interface CherryPickResult {
@@ -40,22 +32,18 @@ const getAllCommitsFromPullRequest = async ({
     repo,
     pullNumber,
 }: GetAllCommitsFromPullRequestOptions) => {
-    try {
-        const response = await client.pulls.listCommits({
-            owner,
-            repo,
-            pull_number: pullNumber,
-        });
+    const response = await client.pulls.listCommits({
+        owner,
+        repo,
+        pull_number: pullNumber,
+    });
 
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+    return response.data;
 };
 
 const findCommitByMessage = (
     message: string,
-    branch: string = "main",
+    branch = "main",
 ): string | null => {
     try {
         const searchMessage = message.split("\n")[0];
@@ -86,7 +74,7 @@ const handleMissingCommit = async (
     spinner.text = `Commit ${chalk.gray(commit.sha.slice(0, 7))} not found locally, fetching main branch...`;
 
     try {
-        execSync(`git fetch origin main:main`, { stdio: "pipe" });
+        execSync("git fetch origin main:main", { stdio: "pipe" });
 
         const alternativeSha = findCommitByMessage(
             commit.commit.message,
@@ -125,7 +113,7 @@ const promptConflictResolution = async (): Promise<ConflictResolution> => {
     console.log(chalk.yellow("     s - to skip this commit"));
     console.log(chalk.red("     q - to quit the process\n"));
 
-    const readline = require("readline").createInterface({
+    const readline = require("node:readline").createInterface({
         input: process.stdin,
         output: process.stdout,
     });
@@ -220,9 +208,10 @@ const cherryPickCommit = async (commit: Commit): Promise<CherryPickResult> => {
         );
 
         return { success: true, newSha };
-        // TODO: fix type
+        // biome-ignore lint/suspicious/noExplicitAny: TODO: fix type
     } catch (error: any) {
-        if (error.stderr && error.stderr.includes("bad object")) {
+        let _currentError = error;
+        if (error.stderr?.includes("bad object")) {
             const result = await handleMissingCommit(commit, spinner);
 
             if (!result.found) {
@@ -243,9 +232,8 @@ const cherryPickCommit = async (commit: Commit): Promise<CherryPickResult> => {
                 );
 
                 return { success: true, newSha };
-                // TODO: fix type
-            } catch (retryError: any) {
-                error = retryError;
+            } catch (retryError) {
+                _currentError = retryError;
             }
         }
 

@@ -1,46 +1,35 @@
 name: ci
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
       - name: Install Chad Bun
-      - uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
       - name: Install deps
         run: bun install
-
       - name: Build library
         run: bun run build
-
   lint:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
       - name: Install Chad Bun
-      - uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
       - name: Install deps
         run: bun install
-      
       - name: Run lint
         run: bun run lint

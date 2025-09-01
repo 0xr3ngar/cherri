@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import ora, { type Ora } from "ora";
+import type { Commit } from "./git/commit";
 
 const LOGO_WIDTH = 38;
 const DIVIDER = "━".repeat(LOGO_WIDTH);
@@ -85,21 +86,21 @@ const displays = {
             ),
         );
 
-        prs.forEach((pr) => {
+        for (const pr of prs) {
             const num = chalk.cyan(`#${pr.number}`);
 
             const title =
                 pr.title.length > 60
-                    ? pr.title.substring(0, 57) + "..."
+                    ? `${pr.title.substring(0, 57)}...`
                     : pr.title;
 
             console.log(`  ${num} ${chalk.gray(title)}`);
-        });
+        }
     },
 
     commitInfo: (
         pr: { number: number; title: string },
-        commits: any[],
+        commits: Commit[],
         index: number,
         total: number,
     ) => {
