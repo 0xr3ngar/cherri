@@ -7,6 +7,7 @@ type PullsListResponse =
 interface GetAllPullRequestsOptions {
     // TODO: replace any with Octokit when github fixes their typing for GET /search/issues
     // https://docs.github.com/rest/search/search#search-issues-and-pull-requests
+    // biome-ignore lint/suspicious/noExplicitAny: look above
     client: any;
     owner: string;
     repo: string;

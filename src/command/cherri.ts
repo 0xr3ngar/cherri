@@ -1,5 +1,5 @@
+import { execSync } from "node:child_process";
 import chalk from "chalk";
-import { execSync } from "child_process";
 import {
     cherryPickCommit,
     getAllCommitsFromPullRequest,
@@ -32,7 +32,7 @@ const cherriCommand = async ({
     });
 
     const cutoffDate = new Date();
-    const sinceMonths = parseInt(since, 10);
+    const sinceMonths = Number.parseInt(since, 10);
 
     cutoffDate.setMonth(cutoffDate.getMonth() - sinceMonths);
 
@@ -84,7 +84,7 @@ const cherriCommand = async ({
 
     displays.done(pullRequests.length, totalCommits);
 
-    console.log(chalk.cyan(`\n  Starting cherry-pick process...\n`));
+    console.log(chalk.cyan("\n  Starting cherry-pick process...\n"));
 
     let successCount = 0;
     let skipCount = 0;
@@ -129,13 +129,12 @@ const cherriCommand = async ({
     }
 
     if (shouldStop) {
-        const resetTo = latestTarget.sha;
         console.log(
             chalk.yellow(
-                `\n  Resetting to latest target commit ${chalk.gray(resetTo.slice(0, 7))}...`,
+                `\n Reverting ${successCount} successful cherry-picks...`,
             ),
         );
-        execSync(`git reset --hard ${resetTo}`, { stdio: "pipe" });
+        execSync(`git reset --hard HEAD~${successCount}`, { stdio: "pipe" });
         console.log(
             chalk.red("  Cherry-pick process aborted by user. Exiting.\n"),
         );
