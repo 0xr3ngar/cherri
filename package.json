@@ -17,8 +17,9 @@
         "bun": ">=1.0.0"
     },
     "scripts": {
-        "lint": "biome check .",
-        "format": "biome format --write ./src/",
+        "biome:check": "biome check --write ./src/",
+        "biome:format": "biome format --write ./src/",
+        "biome:lint": "biome lint --write ./src/",
         "knip": "knip",
         "build": "bun build ./src/index.ts --outdir dist --target node --minify --sourcemap"
     },
