@@ -59,4 +59,4 @@ const searchPullRequestsWithIcon = async ({
     }
 };
 
-export { searchPullRequestsWithIcon };
+export { searchPullRequestsWithIcon, type PullsListResponse };
