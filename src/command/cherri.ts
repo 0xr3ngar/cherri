@@ -7,6 +7,7 @@ import {
     searchPullRequestsWithIcon,
 } from "../git";
 import { displays, printLogo } from "../ui";
+import { confirm } from "@inquirer/prompts";
 
 interface CherriCommandOptions {
     owner: string;
@@ -47,25 +48,54 @@ const cherriCommand = async ({
         sinceDate: cutoffDate,
     });
 
-    const prs = pullRequests.map((pr) => ({
-        number: pr.number,
-        title: pr.title,
-        user: pr.user?.login,
-    }));
-
-    displays.prSummary(prs, icon);
-
     if (pullRequests.length === 0) {
-        console.log(chalk.green("\n  ✓ Everything is up to date!\n"));
+        console.log(`\n  ${chalk.yellow("⚠ ")} No PRs found\n`);
+        console.log(chalk.green("\n ✓ Everything is up to date!\n"));
         return;
     }
 
-    console.log(chalk.cyan("\n  Fetching commits from PRs...\n"));
+    const isInteractive = await confirm(
+        {
+            message: `Found ${chalk.bold.white(pullRequests.length)} PRs with ${icon}. Select specific PRs?`,
+            default: true,
+        },
+        {
+            clearPromptOnDone: true,
+        },
+    );
+
+    const initialPrs = pullRequests.map((pr) => ({
+        number: pr.number,
+        title: pr.title,
+        user: pr.user?.login,
+        merged_at: pr.merged_at,
+    }));
+
+    !isInteractive ? displays.prSummary(initialPrs, icon) : null;
+
+    const finalSelectedPRs = isInteractive
+        ? await displays.interactivePRSelection(pullRequests)
+        : pullRequests;
+
+    if (finalSelectedPRs.length === 0) {
+        console.log(chalk.yellow("\n  No PRs selected for cherry-picking.\n"));
+        return;
+    }
+
+    if (finalSelectedPRs.length !== pullRequests.length) {
+        console.log(
+            chalk.cyan(
+                `\n  Processing ${finalSelectedPRs.length} selected PRs...\n`,
+            ),
+        );
+    } else {
+        console.log(chalk.cyan("\n  Fetching commits from PRs...\n"));
+    }
 
     const allCommits = [];
     let totalCommits = 0;
 
-    for (const [index, pr] of pullRequests.entries()) {
+    for (const [index, pr] of finalSelectedPRs.entries()) {
         const commits = await getAllCommitsFromPullRequest({
             client,
             owner,
@@ -76,10 +106,10 @@ const cherriCommand = async ({
         allCommits.push({ pr, commits });
         totalCommits += commits.length;
 
-        displays.commitInfo(pr, commits, index, pullRequests.length);
+        displays.commitInfo(pr, commits, index, finalSelectedPRs.length);
     }
 
-    displays.done(pullRequests.length, totalCommits);
+    displays.done(finalSelectedPRs.length, totalCommits);
 
     console.log(chalk.cyan("\n  Starting cherry-pick process...\n"));
 
