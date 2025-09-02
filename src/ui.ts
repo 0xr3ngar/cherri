@@ -26,18 +26,18 @@ const checkForUpdates = async (packageName: string, currentVersion: string) => {
 
 const printLogo = async ({ icon }: { icon: string }) => {
     console.log(`
-    ${chalk.red(DIVIDER)}
-    ${chalk.red(icon)} ${chalk.bold.red(PACKAGE_NAME)} ${chalk.yellow(`v${PACKAGE_VERSION}`)}
-    ${chalk.italic.white("Cherry-pick PRs with ease")}
-    ${chalk.red(DIVIDER)}
-    `);
+${chalk.red(DIVIDER)}
+${chalk.red(icon)} ${chalk.bold.red(PACKAGE_NAME)} ${chalk.yellow(`v${PACKAGE_VERSION}`)}
+${chalk.italic.white("Cherry-pick PRs with ease")}
+${chalk.red(DIVIDER)}
+`);
 
     const latestVersion = await checkForUpdates(PACKAGE_NAME, PACKAGE_VERSION);
     if (latestVersion) {
         console.log(`
-    ${chalk.yellow("⚠️  Update available:")} ${chalk.dim(PACKAGE_VERSION)} → ${chalk.green(latestVersion)}
-    ${chalk.dim("Run")} ${chalk.cyan(`npm install -g ${PACKAGE_NAME}`)} ${chalk.dim("to update")}
-    `);
+${chalk.yellow("⚠️  Update available:")} ${chalk.dim(PACKAGE_VERSION)} → ${chalk.green(latestVersion)}
+${chalk.dim("Run")} ${chalk.cyan(`npm install -g ${PACKAGE_NAME}`)} ${chalk.dim("to update")}
+`);
     }
 };
 
@@ -57,7 +57,6 @@ const printError = (message?: string) => {
 const createSpinner = (text: string): Ora => {
     return ora({
         text,
-        indent: 2,
     });
 };
 
@@ -148,7 +147,9 @@ const displays = {
         const prNum = chalk.cyan(`#${pr.number}`);
         const commitCount = chalk.green(`${commits.length} commits`);
 
-        console.log(`  ${progress} ${prNum} ${chalk.dim("→")} ${commitCount}`);
+        console.log(
+            `    ${progress} ${prNum} ${chalk.dim("→")} ${commitCount}`,
+        );
     },
 
     done: (total: number, totalCommits: number) => {
@@ -160,4 +161,4 @@ const displays = {
     },
 };
 
-export { printLogo, spinners, messages, displays };
+export { printLogo, printError, spinners, messages, displays };

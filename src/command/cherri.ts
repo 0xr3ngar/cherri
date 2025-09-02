@@ -33,13 +33,10 @@ const cherriCommand = async ({
 
     const cutoffDate = new Date();
     const sinceMonths = Number.parseInt(since, 10);
-
     cutoffDate.setMonth(cutoffDate.getMonth() - sinceMonths);
 
     console.log(
-        chalk.cyan(
-            `  Cutoff date to ${chalk.bold(cutoffDate.toDateString())}\n`,
-        ),
+        chalk.cyan(`Cutoff date to ${chalk.bold(cutoffDate.toDateString())}\n`),
     );
 
     const pullRequests = await searchPullRequestsWithIcon({
@@ -106,7 +103,7 @@ const cherriCommand = async ({
 
             if (exists) {
                 console.log(
-                    `  ${chalk.gray("○")} ${chalk.dim(commit.sha.slice(0, 7))} already cherry-picked`,
+                    `    ${chalk.gray("○")} ${chalk.dim(commit.sha.slice(0, 7))} already cherry-picked`,
                 );
                 skipCount++;
                 continue;
@@ -138,16 +135,15 @@ const cherriCommand = async ({
         console.log(
             chalk.red("  Cherry-pick process aborted by user. Exiting.\n"),
         );
-
         return;
     }
 
     console.log(chalk.bold.cyan("\n  Summary:"));
     console.log(
-        chalk.green(`    ✓ ${successCount} commits cherry-picked successfully`),
+        chalk.green(`✓ ${successCount} commits cherry-picked successfully`),
     );
     if (skipCount > 0) {
-        console.log(chalk.gray(`    ○ ${skipCount} commits skipped`));
+        console.log(chalk.gray(`○ ${skipCount} commits skipped`));
     }
 };
 
