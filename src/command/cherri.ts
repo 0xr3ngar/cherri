@@ -21,7 +21,7 @@ const cherriCommand = async ({
     icon,
     since = "1",
 }: CherriCommandOptions) => {
-    printLogo({ icon });
+    await printLogo({ icon });
 
     if (!process.env.GITHUB_TOKEN) {
         throw new Error("GITHUB_TOKEN environment variable is not set");

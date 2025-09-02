@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { cherriCommand } from "./command/cherri";
+import { PACKAGE_VERSION } from "./constants";
 
 const program = new Command();
 
 program
     .name("cherri")
     .description("Automated cherry-picking for PRs marked with 🍒")
-    .version("1.0.8");
+    .version(PACKAGE_VERSION);
 
 program
     .requiredOption("-o, --owner <owner>", "GitHub repository owner")
