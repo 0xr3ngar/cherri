@@ -41,6 +41,19 @@ const printLogo = async ({ icon }: { icon: string }) => {
     }
 };
 
+const printError = (message?: string) => {
+    console.log(`
+    ${chalk.red("🍒")} ${chalk.bold.yellow("Cherri interrupted!")}
+    ${chalk.dim("Your repository may be in an incomplete state.")}
+
+    ${chalk.dim("Check current status:")}
+    ${chalk.cyan("    git status")}
+
+    ${chalk.dim("If needed, abort in-progress cherry-pick:")}
+    ${chalk.cyan("    git cherry-pick --abort")}
+    `);
+    message ? console.error(`${chalk.red("✗ Error:")} ${message}\n`) : null;
+};
 const createSpinner = (text: string): Ora => {
     return ora({
         text,

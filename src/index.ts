@@ -2,6 +2,8 @@
 import { Command } from "commander";
 import { cherriCommand } from "./command/cherri";
 import { PACKAGE_VERSION } from "./constants";
+import chalk from "chalk";
+import { printError } from "./ui";
 
 const program = new Command();
 
@@ -22,3 +24,18 @@ program
     .action(cherriCommand);
 
 program.parseAsync();
+
+process.on("SIGINT", () => {
+    printError();
+    process.exit(130);
+});
+
+process.on("uncaughtException", (error) => {
+    if (error instanceof Error && error.name === "ExitPromptError") {
+        printError();
+        process.exit(0);
+    } else {
+        printError(error.message);
+        throw error;
+    }
+});
