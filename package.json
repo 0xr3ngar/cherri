@@ -9,6 +9,15 @@
         "LICENSE",
         "README.md"
     ],
+    "keywords": [
+        "cherri",
+        "cherry-pick",
+        "cli",
+        "github",
+        "backport",
+        "release",
+        "hotfix",
+    ],
     "bin": {
         "cherri": "./dist/index.js"
     },
