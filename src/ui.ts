@@ -8,7 +8,7 @@ const DIVIDER = "━".repeat(LOGO_WIDTH);
 const printLogo = ({ icon }: { icon: string }) => {
     console.log(`
     ${chalk.red(DIVIDER)}
-    ${chalk.red(icon)} ${chalk.bold.red("cheri")} ${chalk.yellow("v1.0.7")}
+    ${chalk.red(icon)} ${chalk.bold.red("cheri")} ${chalk.yellow("v1.0.8")}
     ${chalk.italic.white("Cherry-pick PRs with ease")}
     ${chalk.red(DIVIDER)}
     `);
