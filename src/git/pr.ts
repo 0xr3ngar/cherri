@@ -29,12 +29,18 @@ const searchPullRequestsWithIcon = async ({
 
     try {
         const dateString = sinceDate.toISOString().split("T")[0];
-        const result = await client.paginate("GET /search/issues", {
+
+        // TODO: remove cast when github
+        const result = (await client.paginate("GET /search/issues", {
             q: `repo:${owner}/${repo} is:pr is:merged "${icon}" in:title merged:>=${dateString}`,
-            sort: "created",
-            order: "desc",
             per_page: 100,
             advanced_search: true,
+        })) as PullsListResponse["data"];
+
+        result.sort((a, b) => {
+            const dateA = new Date(a.merged_at || 0);
+            const dateB = new Date(b.merged_at || 0);
+            return dateA.getTime() - dateB.getTime();
         });
 
         spinner.succeed(
@@ -44,8 +50,7 @@ const searchPullRequestsWithIcon = async ({
             }),
         );
 
-        // TODO: remove cast when github
-        return result as PullsListResponse["data"];
+        return result;
     } catch (error) {
         spinner.fail(
             messages.error({ message: `Failed to fetch PRs: ${error}` }),
