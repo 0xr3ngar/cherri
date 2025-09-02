@@ -1,17 +1,44 @@
 import chalk from "chalk";
 import ora, { type Ora } from "ora";
 import type { Commit } from "./git/commit";
+import { PACKAGE_NAME, PACKAGE_VERSION } from "./constants";
 
 const LOGO_WIDTH = 38;
 const DIVIDER = "━".repeat(LOGO_WIDTH);
 
-const printLogo = ({ icon }: { icon: string }) => {
+const checkForUpdates = async (packageName: string, currentVersion: string) => {
+    try {
+        const response = await fetch(
+            `https://registry.npmjs.org/${packageName}`,
+        );
+
+        if (!response.ok) return null;
+
+        const data = await response.json();
+        const latestVersion = data["dist-tags"]?.latest;
+        return latestVersion && latestVersion !== currentVersion
+            ? latestVersion
+            : null;
+    } catch {
+        return null;
+    }
+};
+
+const printLogo = async ({ icon }: { icon: string }) => {
     console.log(`
     ${chalk.red(DIVIDER)}
-    ${chalk.red(icon)} ${chalk.bold.red("cheri")} ${chalk.yellow("v1.0.8")}
+    ${chalk.red(icon)} ${chalk.bold.red(PACKAGE_NAME)} ${chalk.yellow(`v${PACKAGE_VERSION}`)}
     ${chalk.italic.white("Cherry-pick PRs with ease")}
     ${chalk.red(DIVIDER)}
     `);
+
+    const latestVersion = await checkForUpdates(PACKAGE_NAME, PACKAGE_VERSION);
+    if (latestVersion) {
+        console.log(`
+    ${chalk.yellow("⚠️  Update available:")} ${chalk.dim(PACKAGE_VERSION)} → ${chalk.green(latestVersion)}
+    ${chalk.dim("Run")} ${chalk.cyan(`npm install -g ${PACKAGE_NAME}`)} ${chalk.dim("to update")}
+    `);
+    }
 };
 
 const createSpinner = (text: string): Ora => {
