@@ -4,11 +4,11 @@
 
 ## About the Name
 
-**Cherri**, a variant of the French *chérie* ("darling" or "to cherish"), also evokes the cherry fruit, symbolizing good fortune and new beginnings—perfect for a tool that seamlessly integrates valuable changes into your project.
+Why **Cherri**? It's a blend of "cherry-pick" and the French "chérie" (sweetheart), because let's face it - some commits are just more loveable than others. When you mark a PR with that little cherry emoji, you're essentially saying "this one's my chérie" - it's the commit equivalent of a love letter that deserves to be cherry-picked and brought along to every important branch.
 
 ## What is Cherri?
 
-Cherri is a CLI tool that automates the process of cherry-picking commits from merged pull requests. It searches for PRs with a specific emoji (default: 🍒) in their title and cherry-picks all commits from those PRs to your target branch.
+Cherri is a CLI tool that automates the process of cherry-picking commits from merged pull requests. It searches for PRs with a specific emoji (default: 🍒) in their title and cherry-picks all commits from those PRs to your current branch.
 
 Perfect for:
 - Backporting features to release branches
@@ -18,36 +18,15 @@ Perfect for:
 
 ## Installation
 
-Install Cheri globally using your preferred package manager:
+Install Cherri globally using npm:
 
 ```bash
-# Using Bun
-bun install -g cherri
-
-# Using npm
 npm install -g cherri
-
-# Using Deno
-deno install -g cherri
-```
-
-Or, clone and set up manually:
-
-```bash
-# Clone the repository
-git clone https://www.github.com/bnn16/cherri
-cd cherri
-
-# Install dependencies (using Bun)
-bun install
-
-# Make it executable
-chmod +x ./index.ts
 ```
 
 ## Prerequisites
 
-- **Bun** runtime (or Node.js with tsx)
+- **Node.js** (v16 or higher)
 - **Git** installed and configured
 - **GitHub Personal Access Token** with repo access
 - You must be in the target git repository when running the command
@@ -74,7 +53,7 @@ chmod +x ./index.ts
 ### Basic Command
 
 ```bash
-cherri -o <owner> -r <repo> -t <target-branch>
+cherri -o <owner> -r <repo>
 ```
 
 ### Options
@@ -83,47 +62,49 @@ cherri -o <owner> -r <repo> -t <target-branch>
 |--------|-------|-------------|----------|---------|
 | `--owner` | `-o` | GitHub repository owner | Yes | - |
 | `--repo` | `-r` | GitHub repository name | Yes | - |
-| `--target` | `-t` | Target branch to cherry-pick to | Yes | - |
 | `--since` | `-s` | Number of months to look back for PRs | No | `1` |
 | `--icon` | `-i` | Custom icon to search for in PR titles | No | `🍒` |
 
 ### Examples
 
-#### Basic usage - cherry-pick to release branch
+#### Basic usage - cherry-pick all PRs with 🍒
 ```bash
-cherri -o facebook -r react -t release-18.x
+cherri -o facebook -r react
 ```
 
 #### Look back 3 months for PRs
 ```bash
-cherri -o microsoft -r vscode -t release/1.85 -s 3
+cherri -o microsoft -r vscode -s 3
 ```
 
 #### Use a custom emoji marker
 ```bash
-cherri -o your-org -r your-repo -t stable --icon "🚀"
+cherri -o your-org -r your-repo -i "🚀"
 ```
 
 ## How It Works
 
 1. **Search Phase:**
-   - Fetches the latest commit from your target branch
    - Searches for merged PRs with the specified emoji in the title
-   - Filters PRs merged after the target branch's latest commit or within the specified timeframe
+   - Filters PRs merged within the specified timeframe (default: 1 month)
 
-2. **Collection Phase:**
-   - Retrieves all commits from each matching PR
-   - Shows a summary of found PRs and total commits
+2. **Selection Phase:**
+   - Prompts: *"Found X PRs with 🍒. Select specific PRs?"*
+   - **Yes**: Opens interactive checkbox list to select specific PRs
+   - **No**: Processes all found PRs automatically
 
-3. **Cherry-pick Phase:**
-   - Switches to the target branch locally
+3. **Collection Phase:**
+   - Retrieves all commits from each selected PR
+   - Shows a summary of PRs and total commits to be processed
+
+4. **Cherry-pick Phase:**
    - For each commit:
      - Checks if it already exists (by commit message)
      - Attempts to cherry-pick
      - If the commit SHA doesn't exist (rebased/squashed PRs), automatically finds the equivalent commit by message
      - Handles conflicts interactively
 
-4. **Conflict Resolution:**
+5. **Conflict Resolution:**
    When conflicts occur, you'll see:
    ```
    📝 Please resolve conflicts in your editor
@@ -137,6 +118,27 @@ cherri -o your-org -r your-repo -t stable --icon "🚀"
       q - to quit the process
    ```
 
+## Interactive Selection
+
+When you choose to select specific PRs, you'll see a checkbox interface:
+
+```
+🍒 Found 12 PRs with 🍒. Select specific PRs? Yes
+
+? Select PRs to cherry-pick:
+❯◯ #1234 Fix authentication bug (john) • 12/1/2024
+ ◉ #1235 Add new feature (sarah) • 12/2/2024  
+ ◯ #1236 Update dependencies (bot) • 12/3/2024
+
+Selected 1 PRs:
+  #1235 Add new feature
+```
+
+**Controls:**
+- Use **SPACE** to select/deselect PRs
+- Use **ENTER** to confirm selection
+- Use arrow keys to navigate
+
 ## Marking PRs for Cherry-picking
 
 To mark a PR for cherry-picking, simply include the emoji in the PR title:
@@ -149,12 +151,15 @@ feat: Add new dashboard widget 🍒
 
 ## Features
 
+✅ **Smart PR selection** - Choose to select specific PRs or process all automatically  
+✅ **Interactive checkbox interface** - Easy selection with visual feedback  
 ✅ **Automatic commit resolution** - Handles rebased and squashed commits by finding matching messages  
 ✅ **Interactive conflict resolution** - Guides you through fixing conflicts  
 ✅ **Duplicate detection** - Skips commits that are already in the target branch  
 ✅ **Progress tracking** - Shows real-time progress with spinners and status updates  
 ✅ **Safe operation** - Validates repository and branch before making changes  
-✅ **Batch processing** - Processes multiple PRs and commits in one run  
+✅ **Auto version checking** - Notifies when updates are available  
+✅ **Graceful interruption handling** - Clean recovery from Ctrl+C or user cancellation  
 
 ## Important Notes
 
@@ -172,13 +177,27 @@ Set your GitHub token:
 export GITHUB_TOKEN="ghp_yourtoken"
 ```
 
-### "Not in the correct repository!"
-Make sure you're in the right git repository and the remote origin matches the owner/repo you specified.
+### Process interrupted
+If you interrupt the process (Ctrl+C), check your git status:
+```bash
+git status
+# If needed, abort any in-progress cherry-pick:
+git cherry-pick --abort
+```
 
-### "Failed to switch to target branch"
-Ensure:
-- The target branch exists locally or can be fetched from origin
-- You have no uncommitted changes
+### "No PRs found"
+- Check that PRs contain the emoji in their titles
+- Verify the `--since` timeframe covers when PRs were merged
+- Ensure PRs are actually merged (not just closed)
+
+## Upcoming Features
+
+🚧 **In Development:**
+- **Dry run mode** - Test cherry-picks without making changes, detect conflicts early
+- **PR creation mode** - Create pull requests instead of direct cherry-picking  
+- **Slack notifications** - Get notified when cherry-picks complete or have conflicts
+- **Auto-generated release notes** - Generate release notes from cherry-picked PRs
+- **Workflow profiles** - Save configurations for different scenarios (staging, prod, etc.)
 
 ## License
 
@@ -188,16 +207,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. Just remember to mark it with 🍒 if you want it cherry-picked! 😉
-
-## Roadmap
-
-- [ ] Add caching to reduce API calls (v2)
-- [ ] Support for multiple target branches
-- [ ] Dry-run mode
-- [ ] Custom commit message templates
-- [ ] Integration with CI/CD pipelines
-- [ ] Web UI for managing cherry-picks
+Contributions are welcome! Please feel free to submit a Pull Request. Just remember to mark it with 🍒 if you want it cherry-picked!
 
 ---
 
