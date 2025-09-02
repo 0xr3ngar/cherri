@@ -7,7 +7,7 @@ const program = new Command();
 program
     .name("cherri")
     .description("Automated cherry-picking for PRs marked with 🍒")
-    .version("1.0.7");
+    .version("1.0.8");
 
 program
     .requiredOption("-o, --owner <owner>", "GitHub repository owner")
