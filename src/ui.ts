@@ -2,9 +2,13 @@ import chalk from "chalk";
 import ora, { type Ora } from "ora";
 import type { Commit } from "./git/commit";
 import { PACKAGE_NAME, PACKAGE_VERSION } from "./constants";
+import { checkbox } from "@inquirer/prompts";
+import type { PullsListResponse } from "./git";
 
 const LOGO_WIDTH = 38;
 const DIVIDER = "━".repeat(LOGO_WIDTH);
+const MAX_TITLE_LENGTH = 50;
+const TRUNCATION_LENGTH = 47;
 
 const checkForUpdates = async (packageName: string, currentVersion: string) => {
     try {
@@ -54,6 +58,7 @@ const printError = (message?: string) => {
     `);
     message ? console.error(`${chalk.red("✗ Error:")} ${message}\n`) : null;
 };
+
 const createSpinner = (text: string): Ora => {
     return ora({
         text,
@@ -110,6 +115,51 @@ const messages = {
 };
 
 const displays = {
+    interactivePRSelection: async (prs: PullsListResponse["data"]) => {
+        const choices = prs.map((pr) => {
+            const title =
+                pr.title.length > MAX_TITLE_LENGTH
+                    ? `${pr.title.substring(0, TRUNCATION_LENGTH)}...`
+                    : pr.title;
+
+            const author = pr.user?.login ? ` (${pr.user.login})` : "";
+
+            const date = pr.merged_at
+                ? ` • ${new Date(pr.merged_at).toLocaleDateString()}`
+                : "";
+
+            return {
+                name: `${chalk.cyan(`#${pr.number}`)} ${title}${chalk.dim(author + date)}`,
+                value: pr,
+                checked: false,
+            };
+        });
+
+        const selectedPRs = await checkbox(
+            {
+                message: "Select PRs to cherry-pick:",
+                choices,
+            },
+            {
+                clearPromptOnDone: true,
+            },
+        );
+
+        console.log(
+            chalk.green(`\n  Selected ${chalk.bold(selectedPRs.length)} PRs:`),
+        );
+
+        selectedPRs.forEach((pr) => {
+            const prTitle =
+                pr.title.length > MAX_TITLE_LENGTH ? chalk.dim("...") : "";
+            const prTitleTrimmed = pr.title.substring(0, MAX_TITLE_LENGTH);
+            console.log(
+                `    ${chalk.cyan(`#${pr.number}`)} ${chalk.dim(prTitleTrimmed)}${prTitle}`,
+            );
+        });
+
+        return selectedPRs;
+    },
     prSummary: (
         prs: Array<{ number: number; title: string; user?: string }>,
         emoji: string,
@@ -129,8 +179,8 @@ const displays = {
             const num = chalk.cyan(`#${pr.number}`);
 
             const title =
-                pr.title.length > 60
-                    ? `${pr.title.substring(0, 57)}...`
+                pr.title.length > MAX_TITLE_LENGTH
+                    ? `${pr.title.substring(0, TRUNCATION_LENGTH)}...`
                     : pr.title;
 
             console.log(`  ${num} ${chalk.gray(title)}`);
