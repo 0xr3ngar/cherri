@@ -17,6 +17,7 @@ interface CherriCommandOptions {
     sourceBranch?: string;
     since?: string;
     label?: string;
+    autoResolve?: string;
 }
 
 const cherriCommand = async ({
@@ -25,13 +26,29 @@ const cherriCommand = async ({
     emoji,
     interactive: isInteractive,
     sourceBranch,
-    label,
     since = "1",
+    label,
+    autoResolve,
 }: CherriCommandOptions) => {
     await printLogo({ icon: emoji });
 
     if (!process.env.GITHUB_TOKEN) {
         throw new Error("GITHUB_TOKEN environment variable is not set");
+    }
+
+    if (
+        autoResolve &&
+        !["ours", "theirs", "merge-tool"].includes(autoResolve)
+    ) {
+        throw new Error(
+            `Invalid auto-resolve strategy: ${autoResolve}. Use: ours|theirs|merge-tool`,
+        );
+    }
+
+    if (autoResolve) {
+        console.log(
+            chalk.cyan(`Auto-resolve strategy: ${chalk.yellow(autoResolve)}\n`),
+        );
     }
 
     const client = getGithubClient({
@@ -122,6 +139,7 @@ const cherriCommand = async ({
 
     let successCount = 0;
     let skipCount = 0;
+    let autoResolvedCount = 0;
     let shouldStop = false;
 
     for (const { pr, commits } of allCommits) {
@@ -146,11 +164,17 @@ const cherriCommand = async ({
                 continue;
             }
 
-            const { success: didPickingSucceed, aborted: isPickingAborted } =
-                await cherryPickCommit(commit, finalBranch);
+            const {
+                success: didPickingSucceed,
+                aborted: isPickingAborted,
+                autoResolved,
+            } = await cherryPickCommit(commit, finalBranch, autoResolve);
 
             if (didPickingSucceed) {
                 successCount++;
+                if (autoResolved) {
+                    autoResolvedCount++;
+                }
                 continue;
             }
             if (isPickingAborted) {
@@ -179,6 +203,13 @@ const cherriCommand = async ({
     console.log(
         chalk.green(`✓ ${successCount} commits cherry-picked successfully`),
     );
+    if (autoResolvedCount > 0) {
+        console.log(
+            chalk.blue(
+                `⚒ ${autoResolvedCount} conflicts auto-resolved using "${autoResolve}"`,
+            ),
+        );
+    }
     if (skipCount > 0) {
         console.log(chalk.gray(`○ ${skipCount} commits skipped`));
     }

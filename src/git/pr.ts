@@ -35,9 +35,7 @@ const searchPullRequestsWithIcon = async ({
         const titleSearch = `"${icon}" in:title`;
         const labelSearch = label ? `label:"${label}"` : null;
 
-        const searchQuery = labelSearch
-            ? labelSearch
-            : titleSearch;
+        const searchQuery = labelSearch ? labelSearch : titleSearch;
 
         const result = (await client.paginate("GET /search/issues", {
             q: `repo:${owner}/${repo} is:pr is:merged ${searchQuery} merged:>=${dateString}`,
