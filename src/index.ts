@@ -25,6 +25,10 @@ program
         "-b, --source-branch <branch>",
         "Source branch, defaults to the default branch",
     )
+    .option(
+        "-l, --label <label>",
+        "Search for PRs with this exact label (in addition to title search)",
+    )
     .action(cherriCommand);
 
 program.parseAsync();
