@@ -7,22 +7,23 @@ import {
     searchPullRequestsWithIcon,
 } from "../git";
 import { displays, printLogo } from "../ui";
-import { confirm } from "@inquirer/prompts";
 
 interface CherriCommandOptions {
     owner: string;
     repo: string;
-    icon: string;
+    emoji: string;
     since?: string;
+    interactive: boolean;
 }
 
 const cherriCommand = async ({
     owner,
     repo,
-    icon,
+    emoji,
     since = "1",
+    interactive: isInteractive,
 }: CherriCommandOptions) => {
-    await printLogo({ icon });
+    await printLogo({ icon: emoji });
 
     if (!process.env.GITHUB_TOKEN) {
         throw new Error("GITHUB_TOKEN environment variable is not set");
@@ -44,7 +45,7 @@ const cherriCommand = async ({
         client,
         owner,
         repo,
-        icon,
+        icon: emoji,
         sinceDate: cutoffDate,
     });
 
@@ -54,16 +55,6 @@ const cherriCommand = async ({
         return;
     }
 
-    const isInteractive = await confirm(
-        {
-            message: `Found ${chalk.bold.white(pullRequests.length)} PRs with ${icon}. Select specific PRs?`,
-            default: true,
-        },
-        {
-            clearPromptOnDone: true,
-        },
-    );
-
     const initialPrs = pullRequests.map((pr) => ({
         number: pr.number,
         title: pr.title,
@@ -71,7 +62,9 @@ const cherriCommand = async ({
         merged_at: pr.merged_at,
     }));
 
-    !isInteractive ? displays.prSummary(initialPrs, icon) : null;
+    if (!isInteractive) {
+        displays.prSummary(initialPrs, emoji);
+    }
 
     const finalSelectedPRs = isInteractive
         ? await displays.interactivePRSelection(pullRequests)
