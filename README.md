@@ -67,6 +67,7 @@ cherri -o <owner> -r <repo>
 | `--interactive` | `-i` | Enable interactive mode for PR selection | No | `false` |
 | `--source-branch` | `-b` | Source branch, defaults to the default branch | No | Auto-detected |
 | `--label` | `-l` | Search for PRs with this exact label (replaces title search) | No | - |
+| `--auto-resolve` | | Auto-resolve conflicts using strategy: `ours\|theirs\|merge-tool` | No | - |
 
 ### Examples
 
@@ -100,9 +101,21 @@ cherri -o your-org -r your-repo -b release/1.0
 cherri -o your-org -r your-repo -l "cherry-pick"
 ```
 
-#### Combine options with label search
+#### Auto-resolve conflicts with strategy
 ```bash
-cherri -o facebook -r react -s 2 -i -b main -l "hotfix"
+# Always take your current branch's version on conflicts  
+cherri -o your-org -r your-repo --auto-resolve ours
+
+# Always take the cherry-picked commit's version
+cherri -o your-org -r your-repo --auto-resolve theirs
+
+# Auto-open merge tool for each conflict
+cherri -o your-org -r your-repo --auto-resolve merge-tool
+```
+
+#### Combine all options
+```bash
+cherri -o facebook -r react -s 2 -i -b main -l "hotfix" --auto-resolve ours
 ```
 
 ## Search Methods: Title or Labels
@@ -145,10 +158,10 @@ Cherri automatically detects your repository's default branch (main/master) usin
      - Checks if it already exists (by commit message)
      - Attempts to cherry-pick
      - If the commit SHA doesn't exist (rebased/squashed PRs), automatically finds the equivalent commit by message
-     - Handles conflicts interactively
+     - Handles conflicts using auto-resolve strategy (if specified) or interactively
 
 5. **Conflict Resolution:**
-   When conflicts occur, you'll see:
+   When conflicts occur and no auto-resolve strategy is set, you'll see:
    ```
    📝 Please resolve conflicts in your editor
       1. Fix the conflicted files
@@ -160,6 +173,11 @@ Cherri automatically detects your repository's default branch (main/master) usin
       s - to skip this commit
       q - to quit the process
    ```
+
+   **Auto-resolve strategies:**
+   - `--auto-resolve ours`: Always keep your current branch's version
+   - `--auto-resolve theirs`: Always keep the cherry-picked commit's version  
+   - `--auto-resolve merge-tool`: Auto-open your configured merge tool
 
 ## Interactive Selection
 
@@ -209,8 +227,9 @@ cherri -o your-org -r your-repo -l "cherry-pick"
 ✅ **Smart PR selection** - Choose to select specific PRs or process all automatically  
 ✅ **Interactive checkbox interface** - Easy selection with visual feedback  
 ✅ **Flexible search methods** - Search by emoji in titles OR by exact labels
+✅ **Auto-resolve conflicts** - Handle conflicts automatically with `ours`, `theirs`, or `merge-tool` strategies
 ✅ **Automatic commit resolution** - Handles rebased and squashed commits by finding matching messages  
-✅ **Interactive conflict resolution** - Guides you through fixing conflicts  
+✅ **Interactive conflict resolution** - Guides you through fixing conflicts when auto-resolve isn't used
 ✅ **Duplicate detection** - Skips commits that are already in the target branch  
 ✅ **Progress tracking** - Shows real-time progress with spinners and status updates  
 ✅ **Safe operation** - Validates repository and branch before making changes  
@@ -246,6 +265,11 @@ git cherry-pick --abort
 - **Label search**: Verify PRs have the exact label you're searching for
 - Verify the `--since` timeframe covers when PRs were merged
 - Ensure PRs are actually merged (not just closed)
+
+### Auto-resolve conflicts
+- **`merge-tool` not configured**: Run `git config merge.tool <tool>` to set your preferred merge tool
+- **Auto-resolve failed**: The tool will fall back to manual conflict resolution
+- **Wrong strategy chosen**: Use `ours` for keeping your changes, `theirs` for taking incoming changes
 
 ## Upcoming Features
 
