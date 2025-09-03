@@ -29,6 +29,10 @@ program
         "-l, --label <label>",
         "Search for PRs with this exact label (in addition to title search)",
     )
+    .option(
+        "--auto-resolve <strategy>",
+        "Auto-resolve conflicts using strategy: ours|theirs|merge-tool",
+    )
     .action(cherriCommand);
 
 program.parseAsync();
