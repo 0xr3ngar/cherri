@@ -1,6 +1,6 @@
 # 🍒 Cherri
 
-> Cherry-pick PRs with ease! Automatically cherry-pick merged pull requests marked with a specific emoji to your target branch.
+> Cherry-pick PRs with ease! Automatically cherry-pick merged pull requests marked with a specific emoji in their title or with a specific label.
 
 ## About the Name
 
@@ -8,7 +8,7 @@ Why **Cherri**? It's a blend of "cherry-pick" and the French "chérie" (sweethea
 
 ## What is Cherri?
 
-Cherri is a CLI tool that automates the process of cherry-picking commits from merged pull requests. It searches for PRs with a specific emoji (default: 🍒) in their title and cherry-picks all commits from those PRs to your current branch.
+Cherri is a CLI tool that automates the process of cherry-picking commits from merged pull requests. It searches for PRs with a specific emoji (default: 🍒) in their title OR PRs with a specific label, and cherry-picks all commits from those PRs to your current branch.
 
 Perfect for:
 - Backporting features to release branches
@@ -66,10 +66,11 @@ cherri -o <owner> -r <repo>
 | `--emoji` | `-e` | Custom emoji to search for in PR titles and display in logo | No | `🍒` |
 | `--interactive` | `-i` | Enable interactive mode for PR selection | No | `false` |
 | `--source-branch` | `-b` | Source branch, defaults to the default branch | No | Auto-detected |
+| `--label` | `-l` | Search for PRs with this exact label (replaces title search) | No | - |
 
 ### Examples
 
-#### Basic usage - cherry-pick all PRs with 🍒
+#### Basic usage - search for PRs with 🍒 in title
 ```bash
 cherri -o facebook -r react
 ```
@@ -94,9 +95,30 @@ cherri -o microsoft -r vscode -i
 cherri -o your-org -r your-repo -b release/1.0
 ```
 
-#### Combine options
+#### Search by exact label only (replaces title search)
 ```bash
-cherri -o facebook -r react -s 2 -i -b main
+cherri -o your-org -r your-repo -l "cherry-pick"
+```
+
+#### Combine options with label search
+```bash
+cherri -o facebook -r react -s 2 -i -b main -l "hotfix"
+```
+
+## Search Methods: Title or Labels
+
+Cherri uses one of two search methods (not both simultaneously):
+
+- **Title Search (default)**: Looks for the emoji in PR titles
+- **Label Search**: When using `--label`, searches only by the exact label (ignores titles)
+
+**Search behavior:**
+```bash
+# Title search - finds PRs with 🍒 in title
+cherri -o org -r repo
+
+# Label search - finds PRs with "cherry-pick" label (ignores titles completely)  
+cherri -o org -r repo -l "cherry-pick"
 ```
 
 ## Source Branch Detection
@@ -106,7 +128,8 @@ Cherri automatically detects your repository's default branch (main/master) usin
 ## How It Works
 
 1. **Search Phase:**
-   - Searches for merged PRs with the specified emoji in the title
+   - **Without `--label`**: Searches for merged PRs with the specified emoji in the title
+   - **With `--label`**: Searches for merged PRs with the specified label (ignores titles)
    - Filters PRs merged within the specified timeframe (default: 1 month)
 
 2. **Selection Phase:**
@@ -161,18 +184,31 @@ Selected 1 PRs:
 
 ## Marking PRs for Cherry-picking
 
-To mark a PR for cherry-picking, simply include the emoji in the PR title:
+Choose one of these two methods to mark PRs for cherry-picking:
 
+**Method 1: Via Title (default behavior)**
+Add the emoji to PR titles:
 ```
 🍒 Fix: Critical bug in authentication flow
 feat: Add new dashboard widget 🍒
 [🍒] Update dependencies for security patch
 ```
 
+**Method 2: Via Labels (use `--label` flag)**
+- Create a label in your repository (e.g., "cherry-pick", "backport", "hotfix")
+- Apply the label to PRs you want to cherry-pick
+- Use the `--label` flag to search for that specific label (this will ignore titles)
+
+```bash
+# Search for PRs with "cherry-pick" label (ignores titles)
+cherri -o your-org -r your-repo -l "cherry-pick"
+```
+
 ## Features
 
 ✅ **Smart PR selection** - Choose to select specific PRs or process all automatically  
 ✅ **Interactive checkbox interface** - Easy selection with visual feedback  
+✅ **Flexible search methods** - Search by emoji in titles OR by exact labels
 ✅ **Automatic commit resolution** - Handles rebased and squashed commits by finding matching messages  
 ✅ **Interactive conflict resolution** - Guides you through fixing conflicts  
 ✅ **Duplicate detection** - Skips commits that are already in the target branch  
@@ -206,7 +242,8 @@ git cherry-pick --abort
 ```
 
 ### "No PRs found"
-- Check that PRs contain the emoji in their titles
+- **Title search**: Check that PRs contain the emoji in their titles
+- **Label search**: Verify PRs have the exact label you're searching for
 - Verify the `--since` timeframe covers when PRs were merged
 - Ensure PRs are actually merged (not just closed)
 
