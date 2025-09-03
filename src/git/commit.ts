@@ -20,6 +20,7 @@ interface CherryPickResult {
     success: boolean;
     newSha?: string;
     aborted?: boolean;
+    autoResolved?: boolean;
 }
 
 interface ConflictResolution {
@@ -102,6 +103,96 @@ const handleMissingCommit = async (
     } catch (fetchError) {
         spinner.fail(`Failed to fetch ${sourceBranch} branch: ${fetchError}`);
         return { found: false };
+    }
+};
+
+const handleAutoResolve = async (
+    commit: Commit,
+    spinner: Ora,
+    strategy: string,
+) => {
+    try {
+        spinner.text = `Auto-resolving conflicts using "${strategy}" strategy...`;
+
+        switch (strategy) {
+            case "ours":
+                execSync(`git checkout --ours .`, { stdio: "pipe" });
+                execSync(`git add .`, { stdio: "pipe" });
+                execSync(`git cherry-pick --continue`, { stdio: "pipe" });
+                break;
+
+            case "theirs":
+                execSync(`git checkout --theirs .`, { stdio: "pipe" });
+                execSync(`git add .`, { stdio: "pipe" });
+                execSync(`git cherry-pick --continue`, { stdio: "pipe" });
+                break;
+
+            case "merge-tool":
+                spinner.stop();
+                console.log(
+                    chalk.yellow(
+                        `\n  Opening merge tool for commit ${chalk.gray(commit.sha.slice(0, 7))}`,
+                    ),
+                );
+
+                try {
+                    const mergeToolConfigured = execSync(
+                        "git config merge.tool",
+                        {
+                            stdio: "pipe",
+                        },
+                    )
+                        .toString()
+                        .trim();
+
+                    if (!mergeToolConfigured) {
+                        console.log(
+                            chalk.dim(
+                                "     No merge tool configured - Git will use default available tool",
+                            ),
+                        );
+                        console.log(
+                            chalk.dim(
+                                "     Tip: Configure one with 'git config merge.tool <tool>'",
+                            ),
+                        );
+                    }
+                } catch (error) {
+                    console.error(
+                        chalk.red("Error checking merge tool configuration:"),
+                        error,
+                    );
+                }
+
+                console.log(
+                    chalk.cyan(
+                        "     Complete the merge and save. Process will continue automatically.\n",
+                    ),
+                );
+
+                execSync(`git mergetool`, { stdio: "inherit" });
+                execSync(`git cherry-pick --continue`, { stdio: "pipe" });
+
+                spinner.start();
+                break;
+        }
+
+        const newSha = execSync("git rev-parse HEAD", {
+            encoding: "utf8",
+        }).trim();
+
+        spinner.succeed(
+            `Auto-resolved (${chalk.blue(strategy)}) ${chalk.gray(commit.sha.slice(0, 7))} → ${chalk.green(newSha.slice(0, 7))}`,
+        );
+
+        return { success: true, newSha, autoResolved: true };
+    } catch (resolveError) {
+        spinner.fail(`Auto-resolve failed with "${strategy}" strategy`);
+        console.log(chalk.red(`  Error: ${resolveError}`));
+        console.log(chalk.yellow("  Falling back to manual resolution...\n"));
+
+        const resolution = await promptConflictResolution();
+        return executeConflictResolution(resolution, commit.sha);
     }
 };
 
@@ -199,6 +290,7 @@ const executeConflictResolution = async (
 const cherryPickCommit = async (
     commit: Commit,
     sourceBranch: string,
+    autoResolve?: string,
 ): Promise<CherryPickResult> => {
     const spinner = spinners.cherryPick({ sha: commit.sha });
     spinner.start();
@@ -245,6 +337,22 @@ const cherryPickCommit = async (
             } catch (retryError) {
                 _currentError = retryError;
             }
+        }
+
+        if (_currentError.stderr?.includes("conflict") && autoResolve) {
+            const commitSha = chalk.gray(commit.sha.slice(0, 7));
+            const alternateShaText = usedAlternateSha
+                ? " (found by message)"
+                : "";
+            const autoResolvedWith = chalk.blue(
+                `auto-resolving with "${autoResolve}"`,
+            );
+
+            spinner.fail(
+                `Conflict detected in ${commitSha}${alternateShaText}: ${autoResolvedWith}`,
+            );
+
+            return await handleAutoResolve(commit, spinner, autoResolve);
         }
 
         spinner.fail(
