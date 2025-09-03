@@ -166,18 +166,11 @@ const displays = {
     },
     prSummary: (
         prs: Array<{ number: number; title: string; user?: string }>,
-        emoji: string,
     ) => {
         if (prs.length === 0) {
             console.log(`\n  ${chalk.yellow("⚠")} No PRs found\n`);
             return;
         }
-
-        console.log(
-            chalk.gray(
-                `    Found ${chalk.bold.white(prs.length)} PRs with ${emoji}\n`,
-            ),
-        );
 
         for (const pr of prs) {
             const num = chalk.cyan(`#${pr.number}`);
