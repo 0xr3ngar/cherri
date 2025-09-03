@@ -16,6 +16,7 @@ interface CherriCommandOptions {
     interactive: boolean;
     sourceBranch?: string;
     since?: string;
+    label?: string;
 }
 
 const cherriCommand = async ({
@@ -24,6 +25,7 @@ const cherriCommand = async ({
     emoji,
     interactive: isInteractive,
     sourceBranch,
+    label,
     since = "1",
 }: CherriCommandOptions) => {
     await printLogo({ icon: emoji });
@@ -58,6 +60,7 @@ const cherriCommand = async ({
         repo,
         icon: emoji,
         sinceDate: cutoffDate,
+        label,
     });
 
     if (pullRequests.length === 0) {
