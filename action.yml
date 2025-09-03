@@ -1,0 +1,63 @@
+name: 'Cherri - Automated Cherry-picking'
+description: 'Automatically cherry-pick merged pull requests marked with a specific emoji to your target branch'
+author: 'bnn16'
+
+branding:
+  icon: 'git-pull-request'
+  color: 'red'
+
+inputs:
+  owner:
+    description: 'GitHub repository owner'
+    required: true
+  repo:
+    description: 'GitHub repository name'
+    required: true
+  target:
+    description: 'Target branch to cherry-pick commits to'
+    required: true
+  since:
+    description: 'Number of months to look back for PRs'
+    required: false
+    default: '1'
+  emoji:
+    description: 'Custom emoji for the logo'
+    required: false
+    default: '🍒'
+  interactive:
+    description: 'Enable interactive mode'
+    required: false
+    default: 'false'
+  source-branch:
+    description: 'Source branch, defaults to the default branch'
+    required: false
+  label:
+    description: 'Search for PRs with this exact label (in addition to title search)'
+    required: false
+  github-token:
+    description: 'GitHub token with repo access'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
+    - name: Install Cherri
+      shell: bash
+      run: npm install -g cherri
+    
+    - name: Run Cherri
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        git fetch origin ${{ inputs.target }}:${{ inputs.target }} || git checkout -b ${{ inputs.target }} origin/${{ inputs.target }}
+        git checkout ${{ inputs.target }}
+        cherri -o "${{ inputs.owner }}" -r "${{ inputs.repo }}" -s "${{ inputs.since }}" -e "${{ inputs.emoji }}" \
+          ${{ inputs.interactive == 'true' && '-i' || '' }} \
+          ${{ inputs.source-branch && format('-b "{0}"', inputs.source-branch) || '' }} \
+          ${{ inputs.label && format('-l "{0}"', inputs.label) || '' }}
