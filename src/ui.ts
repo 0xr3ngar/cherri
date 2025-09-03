@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import semver from "semver";
 import ora, { type Ora } from "ora";
 import type { Commit } from "./git/commit";
 import { PACKAGE_NAME, PACKAGE_VERSION } from "./constants";
@@ -19,10 +20,13 @@ const checkForUpdates = async (packageName: string, currentVersion: string) => {
         if (!response.ok) return null;
 
         const data = await response.json();
-        const latestVersion = data["dist-tags"]?.latest;
-        return latestVersion && latestVersion !== currentVersion
-            ? latestVersion
-            : null;
+        const latestVersion = data["dist-tags"]?.latest.toString();
+
+        if (semver.gt(latestVersion, currentVersion)) {
+            return latestVersion;
+        }
+
+        return latestVersion;
     } catch {
         return null;
     }
