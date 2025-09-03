@@ -26,7 +26,7 @@ const checkForUpdates = async (packageName: string, currentVersion: string) => {
             return latestVersion;
         }
 
-        return latestVersion;
+        return null;
     } catch {
         return null;
     }
