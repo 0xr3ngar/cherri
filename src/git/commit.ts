@@ -43,7 +43,7 @@ const getAllCommitsFromPullRequest = async ({
 
 const findCommitByMessage = (
     message: string,
-    branch = "main",
+    branch: string,
 ): string | null => {
     try {
         const searchMessage = message.split("\n")[0];
@@ -70,15 +70,18 @@ const executeCherryPick = (sha: string): string => {
 const handleMissingCommit = async (
     commit: Commit,
     spinner: Ora,
+    sourceBranch: string,
 ): Promise<{ found: boolean; alternativeSha?: string }> => {
-    spinner.text = `Commit ${chalk.gray(commit.sha.slice(0, 7))} not found locally, fetching main branch...`;
+    spinner.text = `Commit ${chalk.gray(commit.sha.slice(0, 7))} not found locally, fetching ${sourceBranch} branch...`;
 
     try {
-        execSync("git fetch origin main:main", { stdio: "pipe" });
+        execSync(`git fetch origin ${sourceBranch}:${sourceBranch}`, {
+            stdio: "pipe",
+        });
 
         const alternativeSha = findCommitByMessage(
             commit.commit.message,
-            "main",
+            sourceBranch,
         );
 
         if (alternativeSha) {
@@ -87,7 +90,7 @@ const handleMissingCommit = async (
         }
 
         spinner.fail(
-            `Commit ${chalk.gray(commit.sha.slice(0, 7))} not found and no matching commit message found in main`,
+            `Commit ${chalk.gray(commit.sha.slice(0, 7))} not found and no matching commit message found in ${sourceBranch} branch.`,
         );
         console.log(
             chalk.yellow(
@@ -97,7 +100,7 @@ const handleMissingCommit = async (
         console.log(chalk.yellow("  Skipping this commit.\n"));
         return { found: false };
     } catch (fetchError) {
-        spinner.fail(`Failed to fetch main branch: ${fetchError}`);
+        spinner.fail(`Failed to fetch ${sourceBranch} branch: ${fetchError}`);
         return { found: false };
     }
 };
@@ -193,7 +196,10 @@ const executeConflictResolution = async (
     }
 };
 
-const cherryPickCommit = async (commit: Commit): Promise<CherryPickResult> => {
+const cherryPickCommit = async (
+    commit: Commit,
+    sourceBranch: string,
+): Promise<CherryPickResult> => {
     const spinner = spinners.cherryPick({ sha: commit.sha });
     spinner.start();
 
@@ -212,7 +218,11 @@ const cherryPickCommit = async (commit: Commit): Promise<CherryPickResult> => {
     } catch (error: any) {
         let _currentError = error;
         if (error.stderr?.includes("bad object")) {
-            const result = await handleMissingCommit(commit, spinner);
+            const result = await handleMissingCommit(
+                commit,
+                spinner,
+                sourceBranch,
+            );
 
             if (!result.found) {
                 return { success: false };
