@@ -21,6 +21,10 @@ program
     )
     .option("-e, --emoji <emoji>", "Custom emoji for the logo", "🍒")
     .option("-i, --interactive", "Enable interactive mode", false)
+    .option(
+        "-b, --source-branch <branch>",
+        "Source branch, defaults to the default branch",
+    )
     .action(cherriCommand);
 
 program.parseAsync();

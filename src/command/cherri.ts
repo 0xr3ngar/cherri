@@ -7,21 +7,24 @@ import {
     searchPullRequestsWithIcon,
 } from "../git";
 import { displays, printLogo } from "../ui";
+import { getDefaultBranch } from "../constants";
 
 interface CherriCommandOptions {
     owner: string;
     repo: string;
     emoji: string;
-    since?: string;
     interactive: boolean;
+    sourceBranch?: string;
+    since?: string;
 }
 
 const cherriCommand = async ({
     owner,
     repo,
     emoji,
-    since = "1",
     interactive: isInteractive,
+    sourceBranch,
+    since = "1",
 }: CherriCommandOptions) => {
     await printLogo({ icon: emoji });
 
@@ -33,12 +36,20 @@ const cherriCommand = async ({
         token: process.env.GITHUB_TOKEN,
     });
 
+    const finalBranch = sourceBranch ?? getDefaultBranch() ?? "main";
+
+    console.log(
+        `${chalk.cyan("Using branch")} ${chalk.bold.yellow(finalBranch)}\n`,
+    );
+
     const cutoffDate = new Date();
     const sinceMonths = Number.parseInt(since, 10);
     cutoffDate.setMonth(cutoffDate.getMonth() - sinceMonths);
 
     console.log(
-        chalk.cyan(`Cutoff date to ${chalk.bold(cutoffDate.toDateString())}\n`),
+        chalk.cyan(
+            `Cutoff date to ${chalk.bold.yellow(cutoffDate.toDateString())}\n`,
+        ),
     );
 
     const pullRequests = await searchPullRequestsWithIcon({
@@ -63,7 +74,7 @@ const cherriCommand = async ({
     }));
 
     if (!isInteractive) {
-        displays.prSummary(initialPrs, emoji);
+        displays.prSummary(initialPrs);
     }
 
     const finalSelectedPRs = isInteractive
@@ -133,7 +144,7 @@ const cherriCommand = async ({
             }
 
             const { success: didPickingSucceed, aborted: isPickingAborted } =
-                await cherryPickCommit(commit);
+                await cherryPickCommit(commit, finalBranch);
 
             if (didPickingSucceed) {
                 successCount++;
