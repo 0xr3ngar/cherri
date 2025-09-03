@@ -63,7 +63,9 @@ cherri -o <owner> -r <repo>
 | `--owner` | `-o` | GitHub repository owner | Yes | - |
 | `--repo` | `-r` | GitHub repository name | Yes | - |
 | `--since` | `-s` | Number of months to look back for PRs | No | `1` |
-| `--icon` | `-i` | Custom icon to search for in PR titles | No | `🍒` |
+| `--emoji` | `-e` | Custom emoji to search for in PR titles and display in logo | No | `🍒` |
+| `--interactive` | `-i` | Enable interactive mode for PR selection | No | `false` |
+| `--source-branch` | `-b` | Source branch, defaults to the default branch | No | Auto-detected |
 
 ### Examples
 
@@ -79,8 +81,27 @@ cherri -o microsoft -r vscode -s 3
 
 #### Use a custom emoji marker
 ```bash
-cherri -o your-org -r your-repo -i "🚀"
+cherri -o your-org -r your-repo -e "🚀"
 ```
+
+#### Interactive mode - manually select PRs
+```bash
+cherri -o microsoft -r vscode -i
+```
+
+#### Specify custom source branch
+```bash
+cherri -o your-org -r your-repo -b release/1.0
+```
+
+#### Combine options
+```bash
+cherri -o facebook -r react -s 2 -i -b main
+```
+
+## Source Branch Detection
+
+Cherri automatically detects your repository's default branch (main/master) using `git remote show origin`. You can override this with the `--source-branch` option if needed.
 
 ## How It Works
 
@@ -89,9 +110,8 @@ cherri -o your-org -r your-repo -i "🚀"
    - Filters PRs merged within the specified timeframe (default: 1 month)
 
 2. **Selection Phase:**
-   - Prompts: *"Found X PRs with 🍒. Select specific PRs?"*
-   - **Yes**: Opens interactive checkbox list to select specific PRs
-   - **No**: Processes all found PRs automatically
+   - **Interactive mode** (`-i`): Opens checkbox interface to select specific PRs
+   - **Non-interactive mode** (default): Processes all found PRs automatically
 
 3. **Collection Phase:**
    - Retrieves all commits from each selected PR
@@ -120,7 +140,7 @@ cherri -o your-org -r your-repo -i "🚀"
 
 ## Interactive Selection
 
-When you choose to select specific PRs, you'll see a checkbox interface:
+When you use the `-i` or `--interactive` flag, you'll see a checkbox interface:
 
 ```
 🍒 Found 12 PRs with 🍒. Select specific PRs? Yes
