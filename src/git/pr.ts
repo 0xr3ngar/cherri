@@ -13,6 +13,7 @@ interface GetAllPullRequestsOptions {
     repo: string;
     icon: string;
     sinceDate: Date;
+    label?: string;
 }
 
 const searchPullRequestsWithIcon = async ({
@@ -21,6 +22,7 @@ const searchPullRequestsWithIcon = async ({
     repo,
     icon,
     sinceDate,
+    label,
 }: GetAllPullRequestsOptions) => {
     const spinner = spinners.fetchPRs({
         timeframe: sinceDate.toLocaleDateString(),
@@ -30,9 +32,15 @@ const searchPullRequestsWithIcon = async ({
     try {
         const dateString = sinceDate.toISOString().split("T")[0];
 
-        // TODO: remove cast when github
+        const titleSearch = `"${icon}" in:title`;
+        const labelSearch = label ? `label:"${label}"` : null;
+
+        const searchQuery = labelSearch
+            ? labelSearch
+            : titleSearch;
+
         const result = (await client.paginate("GET /search/issues", {
-            q: `repo:${owner}/${repo} is:pr is:merged "${icon}" in:title merged:>=${dateString}`,
+            q: `repo:${owner}/${repo} is:pr is:merged ${searchQuery} merged:>=${dateString}`,
             per_page: 100,
             advanced_search: true,
         })) as PullsListResponse["data"];
