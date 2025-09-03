@@ -16,7 +16,7 @@
         "github",
         "backport",
         "release",
-        "hotfix",
+        "hotfix"
     ],
     "bin": {
         "cherri": "./dist/index.js"
@@ -54,8 +54,10 @@
     "dependencies": {
         "@inquirer/prompts": "^7.8.4",
         "@octokit/rest": "^22.0.0",
+        "@types/semver": "^7.7.0",
         "chalk": "^5.5.0",
         "commander": "^14.0.0",
-        "ora": "^8.2.0"
+        "ora": "^8.2.0",
+        "semver": "^7.7.2"
     }
 }
