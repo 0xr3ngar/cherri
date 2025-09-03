@@ -224,17 +224,17 @@ cherri -o your-org -r your-repo -l "cherry-pick"
 
 ## Features
 
-✅ **Smart PR selection** - Choose to select specific PRs or process all automatically  
-✅ **Interactive checkbox interface** - Easy selection with visual feedback  
-✅ **Flexible search methods** - Search by emoji in titles OR by exact labels
-✅ **Auto-resolve conflicts** - Handle conflicts automatically with `ours`, `theirs`, or `merge-tool` strategies
-✅ **Automatic commit resolution** - Handles rebased and squashed commits by finding matching messages  
-✅ **Interactive conflict resolution** - Guides you through fixing conflicts when auto-resolve isn't used
-✅ **Duplicate detection** - Skips commits that are already in the target branch  
-✅ **Progress tracking** - Shows real-time progress with spinners and status updates  
-✅ **Safe operation** - Validates repository and branch before making changes  
-✅ **Auto version checking** - Notifies when updates are available  
-✅ **Graceful interruption handling** - Clean recovery from Ctrl+C or user cancellation  
+✅ **Smart PR selection** - Choose to select specific PRs or process all automatically \
+✅ **Interactive checkbox interface** - Easy selection with visual feedback \
+✅ **Flexible search methods** - Search by emoji in titles OR by exact labels \
+✅ **Auto-resolve conflicts** - Handle conflicts automatically with `ours`, `theirs`, or `merge-tool` strategies \
+✅ **Automatic commit resolution** - Handles rebased and squashed commits by finding matching messages \
+✅ **Interactive conflict resolution** - Guides you through fixing conflicts when auto-resolve isn't used \
+✅ **Duplicate detection** - Skips commits that are already in the target branch \
+✅ **Progress tracking** - Shows real-time progress with spinners and status updates \
+✅ **Safe operation** - Validates repository and branch before making changes \
+✅ **Auto version checking** - Notifies when updates are available \
+✅ **Graceful interruption handling** - Clean recovery from Ctrl+C or user cancellation \
 
 ## Important Notes
 
