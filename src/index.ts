@@ -2,7 +2,6 @@
 import { Command } from "commander";
 import { cherriCommand } from "./command/cherri";
 import { PACKAGE_VERSION } from "./constants";
-import chalk from "chalk";
 import { printError } from "./ui";
 
 const program = new Command();
@@ -20,7 +19,8 @@ program
         "Number of months to look back for PRs",
         "1",
     )
-    .option("-i, --icon <icon>", "Custom icon for the logo", "🍒")
+    .option("-e, --emoji <emoji>", "Custom emoji for the logo", "🍒")
+    .option("-i, --interactive", "Enable interactive mode", false)
     .action(cherriCommand);
 
 program.parseAsync();
