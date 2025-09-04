@@ -20,7 +20,7 @@ jobs:
         run: bun install
 
       - name: Update version
-        run: bun ./.github/scripts/set-semver.ts
+        run: bun ./scripts/set-semver.ts
 
       - name: Build library
         run: bun run build
