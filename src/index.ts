@@ -39,6 +39,16 @@ program
         "Auto-resolve conflicts using strategy: ours|theirs|merge-tool",
     )
     .action((options) => {
+        if (
+            options.autoResolve &&
+            !["ours", "theirs", "merge-tool"].includes(options.autoResolve)
+        ) {
+            console.error(
+                `${chalk.red("Error:")} Invalid auto-resolve strategy: ${options.autoResolve}. Use: ours|theirs|merge-tool`,
+            );
+            process.exit(1);
+        }
+
         if (options.profile) {
             if (options.owner || options.repo) {
                 console.error(
