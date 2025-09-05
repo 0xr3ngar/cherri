@@ -48,6 +48,70 @@ npm install -g cherri
    echo 'export GITHUB_TOKEN="your_github_token_here"' >> ~/.bashrc
    ```
 
+## Project Configuration
+
+Instead of specifying repository details via command-line flags each time, you can create a `cherri.json` configuration file in your project root to define reusable profiles.
+
+### Configuration File Structure
+
+Create a `cherri.json` file in your project root:
+
+```json
+{
+  "profiles": [
+    {
+      "name": "main",
+      "configuration": {
+        "owner": "your-org",
+        "repo": "your-repo",
+        "emoji": "🍒",
+        "label": "cherry-pick"
+      }
+    },
+    {
+      "name": "staging",
+      "configuration": {
+        "owner": "your-org", 
+        "repo": "your-repo",
+        "emoji": "🚀",
+        "label": "hotfix"
+      }
+    }
+  ]
+}
+```
+
+### Using Profiles
+
+Use the `-p` or `--profile` flag to specify which profile to use:
+
+```bash
+# Use the "main" profile configuration
+cherri -p main
+
+# Use the "staging" profile configuration  
+cherri -p staging
+
+# You can still override specific options when using a profile
+cherri -p main --interactive --since 2
+```
+
+### Configuration Options
+
+Each profile's `configuration` object supports:
+
+| Field | Description | Required | Default |
+|-------|-------------|----------|---------|
+| `owner` | GitHub repository owner | Yes | - |
+| `repo` | GitHub repository name | Yes | - |
+| `emoji` | Emoji to search for in PR titles | No | `🍒` |
+| `label` | Search for PRs with this label | No | - |
+
+**Notes:**
+- When using `-p`, you cannot specify `--owner` or `--repo` flags (they come from the profile)
+- Other command-line options can still be used and will override profile settings
+- The configuration file is searched in the current directory and parent directories up to the git root
+
 ## Usage
 
 ### Basic Command
@@ -56,18 +120,27 @@ npm install -g cherri
 cherri -o <owner> -r <repo>
 ```
 
+### Using Configuration File
+
+```bash
+cherri -p <profile-name>
+```
+
 ### Options
 
 | Option | Alias | Description | Required | Default |
 |--------|-------|-------------|----------|---------|
-| `--owner` | `-o` | GitHub repository owner | Yes | - |
-| `--repo` | `-r` | GitHub repository name | Yes | - |
+| `--profile` | `-p` | Profile name from cherri.json configuration file | No | - |
+| `--owner` | `-o` | GitHub repository owner | Yes* | - |
+| `--repo` | `-r` | GitHub repository name | Yes* | - |
 | `--since` | `-s` | Number of months to look back for PRs | No | `1` |
 | `--emoji` | `-e` | Custom emoji to search for in PR titles and display in logo | No | `🍒` |
 | `--interactive` | `-i` | Enable interactive mode for PR selection | No | `false` |
 | `--source-branch` | `-b` | Source branch, defaults to the default branch | No | Auto-detected |
 | `--label` | `-l` | Search for PRs with this exact label (replaces title search) | No | - |
 | `--auto-resolve` | | Auto-resolve conflicts using strategy: `ours\|theirs\|merge-tool` | No | - |
+
+**\* Required unless using `--profile` with a configuration file**
 
 ### Examples
 
