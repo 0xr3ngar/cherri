@@ -33,6 +33,10 @@ inputs:
   label:
     description: "Search for PRs with this exact label (in addition to title search)"
     required: false
+  fail-on-conflict:
+    description: "Exit with error when conflicts are detected instead of prompting for resolution"
+    required: false
+    default: "true"
   github-token:
     description: "GitHub token with repo access"
     required: true
