@@ -14,7 +14,7 @@ interface CommonCherriOptions {
     interactive?: boolean;
     sourceBranch?: string;
     since?: string;
-    autoResolve?: string;
+    autoResolve?: "ours" | "theirs" | "merge-tool";
 }
 
 export interface CherriCommandProjectFileOptions extends CommonCherriOptions {
@@ -51,15 +51,6 @@ const cherriCommand = async (configuration: CherriCommandOptions) => {
 
     if (!process.env.GITHUB_TOKEN) {
         throw new Error("GITHUB_TOKEN environment variable is not set");
-    }
-
-    if (
-        autoResolve &&
-        !["ours", "theirs", "merge-tool"].includes(autoResolve)
-    ) {
-        throw new Error(
-            `Invalid auto-resolve strategy: ${autoResolve}. Use: ours|theirs|merge-tool`,
-        );
     }
 
     if (autoResolve) {
