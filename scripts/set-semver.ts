@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 import semver from 'semver'
 
 const GITHUB_REF = process.env['GITHUB_REF']
-const PKG_LOCATION = resolve(__dirname, '../..', 'package.json')
+const PKG_LOCATION = resolve(__dirname, '..', 'package.json')
 
 const setVersion = (version: string) => {
     console.log(`Writing version to package.json: '${version}'...`)
