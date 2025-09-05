@@ -32,9 +32,9 @@ jobs:
           path: ./dist
 
       - name: Publish package
-        run: npm run release
+        run: bun publish
         if: ${{ !contains(github.ref, '-') }}
 
       - name: Publish pre-release package
-        run: npm run release -- --tag next
+        run: bun publish --tag next
         if: ${{ contains(github.ref, '-') }}
