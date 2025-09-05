@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import chalk from "chalk";
 import { Command } from "commander";
 import { cherriCommand } from "./command/cherri";
 import { PACKAGE_VERSION } from "./constants";
@@ -12,8 +13,12 @@ program
     .version(PACKAGE_VERSION);
 
 program
-    .requiredOption("-o, --owner <owner>", "GitHub repository owner")
-    .requiredOption("-r, --repo <repo>", "GitHub repository")
+    .option(
+        "-p, --profile <profile>",
+        "The project to run from the cherri.json configuration file",
+    )
+    .option("-o, --owner <owner>", "GitHub repository owner")
+    .option("-r, --repo <repo>", "GitHub repository")
     .option(
         "-s, --since <months>",
         "Number of months to look back for PRs",
@@ -33,7 +38,26 @@ program
         "--auto-resolve <strategy>",
         "Auto-resolve conflicts using strategy: ours|theirs|merge-tool",
     )
-    .action(cherriCommand);
+    .action((options) => {
+        if (options.profile) {
+            if (options.owner || options.repo) {
+                console.error(
+                    `${chalk.red("Error:")} When using --project-file (-p), do not specify --owner or --repo`,
+                );
+                process.exit(1);
+            }
+            return cherriCommand(options);
+        }
+
+        if (!options.owner || !options.repo) {
+            console.error(
+                `${chalk.red("Error:")} Either --project-file (-p) or both --owner and --repo are required`,
+            );
+            process.exit(1);
+        }
+
+        return cherriCommand(options);
+    });
 
 program.parseAsync();
 
