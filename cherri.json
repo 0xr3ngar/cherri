@@ -1,0 +1,12 @@
+{
+    "profiles": [
+        {
+            "name": "main",
+            "configuration": {
+                "owner": "bnn16",
+                "repo": "cherri",
+                "emoji": "🍒"
+            }
+        }
+    ]
+}
