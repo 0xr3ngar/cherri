@@ -25,6 +25,16 @@
         "node": ">=14.0.0",
         "bun": ">=1.0.0"
     },
+    "devEngines": {
+        "runtime": {
+            "name": "bun",
+            "onFail": "error"
+        },
+        "packageManager": {
+            "name": "bun",
+            "onFail": "error"
+        }
+    },
     "scripts": {
         "biome:check": "biome check --write ./src/",
         "biome:format": "biome format --write ./src/",
