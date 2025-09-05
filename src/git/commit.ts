@@ -118,12 +118,9 @@ const handleMergeToolResolve = async (
         );
 
         try {
-            const mergeToolConfigured = execSync(
-                "git config merge.tool",
-                {
-                    stdio: "pipe",
-                },
-            )
+            const mergeToolConfigured = execSync("git config merge.tool", {
+                stdio: "pipe",
+            })
                 .toString()
                 .trim();
 
@@ -266,10 +263,16 @@ const executeConflictResolution = async (
     }
 };
 
+interface CherryPickOptions {
+    failOnConflict?: boolean;
+}
+
 const cherryPickCommit = async (
     commit: Commit,
     sourceBranch: string,
+    options: CherryPickOptions = {},
 ): Promise<CherryPickResult> => {
+    const { failOnConflict = false } = options;
     const spinner = spinners.cherryPick({ sha: commit.sha });
     spinner.start();
 
@@ -322,6 +325,15 @@ const cherryPickCommit = async (
             const alternateShaText = usedAlternateSha
                 ? " (found by message)"
                 : "";
+
+            if (failOnConflict) {
+                spinner.fail(
+                    `Conflict detected in ${commitSha}${alternateShaText}: failing due to --fail-on-conflict option`,
+                );
+
+                execSync("git cherry-pick --abort", { stdio: "pipe" });
+                return { success: false, aborted: true };
+            }
 
             spinner.fail(
                 `Conflict detected in ${commitSha}${alternateShaText}: opening merge tool`,

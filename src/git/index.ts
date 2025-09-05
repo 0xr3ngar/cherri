@@ -1,6 +1,6 @@
 import { Octokit } from "@octokit/rest";
 import { cherryPickCommit, getAllCommitsFromPullRequest } from "./commit";
-import { searchPullRequestsWithIcon, type PullsListResponse } from "./pr";
+import { type PullsListResponse, searchPullRequestsWithIcon } from "./pr";
 
 interface GithubClientOptions {
     token: string;
