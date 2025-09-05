@@ -37,16 +37,32 @@ const searchPullRequestsWithIcon = async ({
 
         const searchQuery = labelSearch ? labelSearch : titleSearch;
 
-        const result = (await client.paginate("GET /search/issues", {
+        const searchResults = (await client.paginate("GET /search/issues", {
             q: `repo:${owner}/${repo} is:pr is:merged ${searchQuery} merged:>=${dateString}`,
             per_page: 100,
             advanced_search: true,
         })) as PullsListResponse["data"];
 
+        const result = await Promise.all(
+            searchResults.map(async (issue) => {
+                const prNumber = issue.number;
+                const { data: pr } = await client.rest.pulls.get({
+                    owner,
+                    repo,
+                    pull_number: prNumber,
+                });
+                return pr;
+            }),
+        );
+
         result.sort((a, b) => {
-            const dateA = new Date(a.merged_at || 0);
-            const dateB = new Date(b.merged_at || 0);
-            return dateA.getTime() - dateB.getTime();
+            if (!a.merged_at && !b.merged_at) return 0;
+            if (!a.merged_at) return 1;
+            if (!b.merged_at) return -1;
+            return (
+                new Date(a.merged_at).getTime() -
+                new Date(b.merged_at).getTime()
+            );
         });
 
         spinner.succeed(
