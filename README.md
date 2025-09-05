@@ -138,6 +138,7 @@ cherri -p <profile-name>
 | `--interactive` | `-i` | Enable interactive mode for PR selection | No | `false` |
 | `--source-branch` | `-b` | Source branch, defaults to the default branch | No | Auto-detected |
 | `--label` | `-l` | Search for PRs with this exact label (replaces title search) | No | - |
+| `--fail-on-conflict` | - | Exit with error when conflicts are detected instead of prompting for resolution | No | `false` |
 
 **\* Required unless using `--profile` with a configuration file**
 
@@ -173,9 +174,14 @@ cherri -o your-org -r your-repo -b release/1.0
 cherri -o your-org -r your-repo -l "cherry-pick"
 ```
 
+#### Fail on conflict instead of prompting for resolution
+```bash
+cherri -o your-org -r your-repo --fail-on-conflict
+```
+
 #### Combine all options
 ```bash
-cherri -o facebook -r react -s 2 -i -b main -l "hotfix"
+cherri -o facebook -r react -s 2 -i -b main -l "hotfix" --fail-on-conflict
 ```
 
 ## Search Methods: Title or Labels
@@ -221,7 +227,7 @@ Cherri automatically detects your repository's default branch (main/master) usin
      - Handles conflicts by automatically opening your configured merge tool
 
 5. **Conflict Resolution:**
-   When conflicts occur, your configured merge tool will automatically open. If no merge tool is configured, you'll see:
+   **Default behavior**: When conflicts occur, your configured merge tool will automatically open. If no merge tool is configured, you'll see:
    ```
    📝 Please resolve conflicts in your editor
       1. Fix the conflicted files
@@ -233,6 +239,8 @@ Cherri automatically detects your repository's default branch (main/master) usin
       s - to skip this commit
       q - to quit the process
    ```
+   
+   **With `--fail-on-conflict`**: The process will immediately exit with an error when any conflict is detected, without prompting for resolution. This is useful for automated environments like CI/CD where you want the process to fail fast on conflicts.
 
 ## Interactive Selection
 
@@ -285,6 +293,7 @@ cherri -o your-org -r your-repo -l "cherry-pick"
 ✅ **Automatic conflict resolution** - Automatically opens your configured merge tool for conflicts \
 ✅ **Automatic commit resolution** - Handles rebased and squashed commits by finding matching messages \
 ✅ **Interactive conflict resolution** - Guides you through fixing conflicts when merge tool isn't configured \
+✅ **Fail-fast on conflicts** - Option to exit immediately on conflicts for automated environments \
 ✅ **Duplicate detection** - Skips commits that are already in the target branch \
 ✅ **Progress tracking** - Shows real-time progress with spinners and status updates \
 ✅ **Safe operation** - Validates repository and branch before making changes \
