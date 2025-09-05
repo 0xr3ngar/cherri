@@ -14,6 +14,7 @@ interface CommonCherriOptions {
     interactive?: boolean;
     sourceBranch?: string;
     since?: string;
+    failOnConflict?: boolean;
 }
 
 export interface CherriCommandProjectFileOptions extends CommonCherriOptions {
@@ -41,6 +42,7 @@ const cherriCommand = async (configuration: CherriCommandOptions) => {
         sourceBranch,
         since = "1",
         label,
+        failOnConflict = false,
     } = "profile" in configuration
         ? getConfigurationFromProject(configuration)
         : configuration;
@@ -50,7 +52,6 @@ const cherriCommand = async (configuration: CherriCommandOptions) => {
     if (!process.env.GITHUB_TOKEN) {
         throw new Error("GITHUB_TOKEN environment variable is not set");
     }
-
 
     const client = getGithubClient({
         token: process.env.GITHUB_TOKEN,
@@ -164,10 +165,8 @@ const cherriCommand = async (configuration: CherriCommandOptions) => {
                 continue;
             }
 
-            const {
-                success: didPickingSucceed,
-                aborted: isPickingAborted,
-            } = await cherryPickCommit(commit, finalBranch);
+            const { success: didPickingSucceed, aborted: isPickingAborted } =
+                await cherryPickCommit(commit, finalBranch, { failOnConflict });
 
             if (didPickingSucceed) {
                 successCount++;

@@ -34,6 +34,11 @@ program
         "-l, --label <label>",
         "Search for PRs with this exact label (in addition to title search)",
     )
+    .option(
+        "--fail-on-conflict",
+        "Exit with error when conflicts are detected instead of prompting for resolution",
+        false,
+    )
     .action((options) => {
         if (options.profile) {
             if (options.owner || options.repo) {

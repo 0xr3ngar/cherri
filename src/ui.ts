@@ -1,10 +1,10 @@
-import chalk from "chalk";
-import semver from "semver";
-import ora, { type Ora } from "ora";
-import type { Commit } from "./git/commit";
-import { PACKAGE_NAME, PACKAGE_VERSION } from "./constants";
 import { checkbox } from "@inquirer/prompts";
+import chalk from "chalk";
+import ora, { type Ora } from "ora";
+import semver from "semver";
+import { PACKAGE_NAME, PACKAGE_VERSION } from "./constants";
 import type { PullsListResponse } from "./git";
+import type { Commit } from "./git/commit";
 
 const LOGO_WIDTH = 38;
 const DIVIDER = "━".repeat(LOGO_WIDTH);
