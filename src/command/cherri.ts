@@ -1,5 +1,6 @@
 import { execSync } from "node:child_process";
 import chalk from "chalk";
+import { getDefaultBranch } from "../constants";
 import {
     cherryPickCommit,
     getAllCommitsFromPullRequest,
@@ -7,29 +8,45 @@ import {
     searchPullRequestsWithIcon,
 } from "../git";
 import { displays, printLogo } from "../ui";
-import { getDefaultBranch } from "../constants";
+import { getConfigurationFromProject } from "./getConfigurationFromProject";
 
-interface CherriCommandOptions {
-    owner: string;
-    repo: string;
-    emoji: string;
-    interactive: boolean;
+interface CommonCherriOptions {
+    interactive?: boolean;
     sourceBranch?: string;
     since?: string;
-    label?: string;
     autoResolve?: string;
 }
 
-const cherriCommand = async ({
-    owner,
-    repo,
-    emoji,
-    interactive: isInteractive,
-    sourceBranch,
-    since = "1",
-    label,
-    autoResolve,
-}: CherriCommandOptions) => {
+export interface CherriCommandProjectFileOptions extends CommonCherriOptions {
+    profile: string;
+}
+
+export interface CherriCommandWithoutProjectOptions
+    extends CommonCherriOptions {
+    owner: string;
+    repo: string;
+    emoji: string;
+    label?: string;
+}
+
+type CherriCommandOptions =
+    | CherriCommandProjectFileOptions
+    | CherriCommandWithoutProjectOptions;
+
+const cherriCommand = async (configuration: CherriCommandOptions) => {
+    const {
+        owner,
+        repo,
+        emoji,
+        interactive: isInteractive,
+        sourceBranch,
+        since = "1",
+        label,
+        autoResolve,
+    } = "profile" in configuration
+        ? getConfigurationFromProject(configuration)
+        : configuration;
+
     await printLogo({ icon: emoji });
 
     if (!process.env.GITHUB_TOKEN) {
