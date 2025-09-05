@@ -1,55 +1,54 @@
-name: 'Cherri - Automated Cherry-picking'
-description: 'Automatically cherry-pick merged pull requests marked with a specific emoji to your target branch'
-author: 'bnn16'
+name: "Cherri - Automated Cherry-picking"
+description: "Automatically cherry-pick merged pull requests marked with a specific emoji to your target branch"
+author: "bnn16"
 
 branding:
-  icon: 'git-pull-request'
-  color: 'red'
+  icon: "git-pull-request"
+  color: "red"
 
 inputs:
+  profile:
+    description: "Profile to use from the cherri.json configuration file"
+    required: false
   owner:
-    description: 'GitHub repository owner'
-    required: true
+    description: "GitHub repository owner"
+    required: false
   repo:
-    description: 'GitHub repository name'
-    required: true
+    description: "GitHub repository name"
+    required: false
   target:
-    description: 'Target branch to cherry-pick commits to'
-    required: true
+    description: "Target branch to cherry-pick commits to"
+    required: false
   since:
-    description: 'Number of months to look back for PRs'
+    description: "Number of months to look back for PRs"
     required: false
-    default: '1'
+    default: "1"
   emoji:
-    description: 'Custom emoji for the logo'
+    description: "Custom emoji for the logo"
     required: false
-    default: '🍒'
-  interactive:
-    description: 'Enable interactive mode'
-    required: false
-    default: 'false'
+    default: "🍒"
   source-branch:
-    description: 'Source branch, defaults to the default branch'
+    description: "Source branch, defaults to the default branch"
     required: false
   label:
-    description: 'Search for PRs with this exact label (in addition to title search)'
+    description: "Search for PRs with this exact label (in addition to title search)"
     required: false
   github-token:
-    description: 'GitHub token with repo access'
+    description: "GitHub token with repo access"
     required: true
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
-    
+        node-version: "20"
+
     - name: Install Cherri
       shell: bash
       run: npm install -g cherri
-    
+
     - name: Run Cherri
       shell: bash
       env:
