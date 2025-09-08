@@ -32,7 +32,9 @@ jobs:
           path: ./dist
 
       - name: Publish package
-        run: bun publish
+        env:
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: bun publish --access public
         if: ${{ !contains(github.ref, '-') }}
 
       - name: Publish pre-release package
