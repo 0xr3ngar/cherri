@@ -33,6 +33,8 @@ npm install -g cherri
 
 ## Setup
 
+### 1. GitHub Personal Access Token
+
 1. **Create a GitHub Personal Access Token:**
    - Go to GitHub Settings → Developer settings → Personal access tokens
    - Generate a new token with `repo` scope
@@ -47,6 +49,41 @@ npm install -g cherri
    ```bash
    echo 'export GITHUB_TOKEN="your_github_token_here"' >> ~/.bashrc
    ```
+
+### 2. Git Merge Tool Configuration
+
+Before running Cherri, please set up your merge tool for automatic conflict resolution. When conflicts occur during cherry-picking, they will be handled **one by one**, opening your configured editor for each conflicted file individually.
+
+Add one of these configurations to your global `~/.gitconfig` file:
+
+**For Cursor:**
+```ini
+[merge]
+    tool = cursor
+[mergetool "cursor"]
+    cmd = cursor --reuse-window --wait $MERGED
+```
+
+**For VS Code:**
+```ini
+[merge]
+    tool = vscode
+[mergetool "vscode"]
+    cmd = code --wait $MERGED
+```
+
+**For other popular editors:**
+```ini
+# For Vim 🗿
+[merge]
+    tool = vimdiff
+
+# For Emacs 🤓 ( only tsoding 🗿 uses this lol )
+[merge]
+    tool = emerge
+```
+
+After adding this configuration, git will automatically open your editor when conflicts need to be resolved during cherry-picking.
 
 ## Project Configuration
 
@@ -227,7 +264,7 @@ Cherri automatically detects your repository's default branch (main/master) usin
      - Handles conflicts by automatically opening your configured merge tool
 
 5. **Conflict Resolution:**
-   **Default behavior**: When conflicts occur, your configured merge tool will automatically open. If no merge tool is configured, you'll see:
+   **Default behavior**: When conflicts occur, your configured merge tool will automatically open **one conflict at a time**. Each conflicted file will be processed individually, allowing you to focus on resolving one conflict before moving to the next. If no merge tool is configured, you'll see:
    ```
    📝 Please resolve conflicts in your editor
       1. Fix the conflicted files
@@ -291,6 +328,7 @@ cherri -o your-org -r your-repo -l "cherry-pick"
 ✅ **Interactive checkbox interface** - Easy selection with visual feedback \
 ✅ **Flexible search methods** - Search by emoji in titles OR by exact labels \
 ✅ **Automatic conflict resolution** - Automatically opens your configured merge tool for conflicts \
+✅ **One-by-one conflict handling** - Processes conflicts individually for focused resolution \
 ✅ **Automatic commit resolution** - Handles rebased and squashed commits by finding matching messages \
 ✅ **Interactive conflict resolution** - Guides you through fixing conflicts when merge tool isn't configured \
 ✅ **Fail-fast on conflicts** - Option to exit immediately on conflicts for automated environments \
@@ -307,6 +345,8 @@ cherri -o your-org -r your-repo -l "cherry-pick"
 ⚠️ **Commit your work first** - Ensure you have no uncommitted changes before running
 
 ⚠️ **Test on a feature branch first** - Before cherry-picking to important branches like `main` or `release`
+
+⚠️ **Configure your merge tool** - Set up your preferred merge tool before running to ensure smooth conflict resolution
 
 ## Troubleshooting
 
