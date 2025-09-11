@@ -170,7 +170,7 @@ cherri -p <profile-name>
 | `--profile` | `-p` | Profile name from cherri.json configuration file | No | - |
 | `--owner` | `-o` | GitHub repository owner | Yes* | - |
 | `--repo` | `-r` | GitHub repository name | Yes* | - |
-| `--since` | `-s` | Number of months to look back for PRs | No | `1` |
+| `--since` | `-s` | Time period to look back for PRs (e.g., '1w3d4h', '7d', '2' for 2 months) | No | `1` |
 | `--emoji` | `-e` | Custom emoji to search for in PR titles and display in logo | No | `🍒` |
 | `--interactive` | `-i` | Enable interactive mode for PR selection | No | `false` |
 | `--source-branch` | `-b` | Source branch, defaults to the default branch | No | Auto-detected |
@@ -189,6 +189,21 @@ cherri -o facebook -r react
 #### Look back 3 months for PRs
 ```bash
 cherri -o microsoft -r vscode -s 3
+```
+
+#### Look back 1 week and 2 days for PRs
+```bash
+cherri -o microsoft -r vscode -s 1w2d
+```
+
+#### Look back 7 days for PRs
+```bash
+cherri -o microsoft -r vscode -s 7d
+```
+
+#### Look back 2 hours for PRs
+```bash
+cherri -o microsoft -r vscode -s 2h
 ```
 
 #### Use a custom emoji marker
@@ -221,6 +236,38 @@ cherri -o your-org -r your-repo --fail-on-conflict
 cherri -o facebook -r react -s 2 -i -b main -l "hotfix" --fail-on-conflict
 ```
 
+## Time Period Formats
+
+The `--since` flag supports flexible time period specifications:
+
+### Supported Units
+- `w` = weeks
+- `d` = days
+- `h` = hours
+- `m` = minutes
+
+### Examples
+```bash
+# Complex combinations
+cherri -s 1w3d4h    # 1 week, 3 days, 4 hours ago
+cherri -s 2d12h     # 2 days, 12 hours ago
+cherri -s 30m       # 30 minutes ago
+
+# Individual units
+cherri -s 7d        # 7 days ago
+cherri -s 2h        # 2 hours ago
+cherri -s 45m       # 45 minutes ago
+
+# Backward compatible (bare numbers = months)
+cherri -s 2         # 2 months ago (same as before)
+cherri -s 1         # 1 month ago (default)
+```
+
+### Notes
+- **Backward Compatible**: Bare numbers without units still work as months
+- **Flexible**: Mix and match any combination of time units
+- **Precise**: Calculations use milliseconds for accuracy
+
 ## Search Methods: Title or Labels
 
 Cherri uses one of two search methods (not both simultaneously):
@@ -246,7 +293,8 @@ Cherri automatically detects your repository's default branch (main/master) usin
 1. **Search Phase:**
    - **Without `--label`**: Searches for merged PRs with the specified emoji in the title
    - **With `--label`**: Searches for merged PRs with the specified label (ignores titles)
-   - Filters PRs merged within the specified timeframe (default: 1 month)
+   - Parses the `--since` time period (supports complex formats like '1w3d4h', '7d', or '2' for months)
+   - Filters PRs merged within the specified timeframe
 
 2. **Selection Phase:**
    - **Interactive mode** (`-i`): Opens checkbox interface to select specific PRs
