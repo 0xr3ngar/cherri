@@ -41,9 +41,8 @@ inputs:
     required: false
     default: "true"
   create-pr:
-    description: "Create a PR after cherry-picking"
+    description: "Target branch for PR creation. If set, creates a PR after cherry-picking"
     required: false
-    default: "false"
   github-token:
     description: "GitHub token with repo access"
     required: true
@@ -73,12 +72,12 @@ runs:
             ${{ inputs.label && format('-l "{0}"', inputs.label) || '' }} \
             ${{ inputs.fail-on-conflict == 'true' && '--fail-on-conflict' || '' }} \
             ${{ inputs.since-branch && format('--since-branch "{0}"', inputs.since-branch) || '' }} \
-            ${{ inputs.create-pr == 'true' && format('--create-pr "{0}"', inputs.target) || '' }}
+            ${{ inputs.create-pr && format('--create-pr "{0}"', inputs.create-pr) || '' }}
         else
           cherri -o "${{ inputs.owner }}" -r "${{ inputs.repo }}" -s "${{ inputs.since }}" -e "${{ inputs.emoji }}" \
             ${{ inputs.source-branch && format('-b "{0}"', inputs.source-branch) || '' }} \
             ${{ inputs.label && format('-l "{0}"', inputs.label) || '' }} \
             ${{ inputs.fail-on-conflict == 'true' && '--fail-on-conflict' || '' }} \
             ${{ inputs.since-branch && format('--since-branch "{0}"', inputs.since-branch) || '' }} \
-            ${{ inputs.create-pr == 'true' && format('--create-pr "{0}"', inputs.target) || '' }}
+            ${{ inputs.create-pr && format('--create-pr "{0}"', inputs.create-pr) || '' }}
         fi
