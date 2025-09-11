@@ -21,8 +21,12 @@ program
     .option("-r, --repo <repo>", "GitHub repository")
     .option(
         "-s, --since <period>",
-        "Time period to look back for PRs (e.g., '1w3d4h', '7d', '2' for 2 months)",
+        "Time period to look back for PRs (e.g., '1w3d4h', '7d', '2' for 2 months) - alternative to --since-branch",
         "1",
+    )
+    .option(
+        "--since-branch <branch>",
+        "Use branch creation date as cutoff (e.g., 'main', 'release/v1.0') - alternative to --since",
     )
     .option("-e, --emoji <emoji>", "Custom emoji for the logo", "🍒")
     .option("-i, --interactive", "Enable interactive mode", false)
