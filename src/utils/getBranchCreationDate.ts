@@ -45,8 +45,7 @@ export const getBranchCreationDate = (branchName: string): Date => {
                 const datePart = checkoutLine.split(" ")[0];
                 return new Date(datePart);
             }
-        } catch (_reflogError) {
-        }
+        } catch (_reflogError) {}
 
         throw new Error(
             `Could not determine creation date for branch '${branchName}'. Make sure the branch exists and you're in a git repository.`,

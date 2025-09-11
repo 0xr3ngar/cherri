@@ -5,7 +5,7 @@ import { findCherriConfig } from "../utils/findCherriConfig";
 import type {
     CherriCommandProjectFileOptions,
     CherriCommandWithoutProjectOptions,
-} from "./cherri";
+} from "../command/cherri";
 
 const ProjectFileStructure = z.object({
     profiles: z.array(
