@@ -10,11 +10,13 @@ import {
 import { displays, printLogo } from "../ui";
 import { getConfigurationFromProject } from "./getConfigurationFromProject";
 import { parseTimePeriod } from "../utils/parseTimePeriod";
+import { getBranchCreationDate } from "../utils/getBranchCreationDate";
 
 interface CommonCherriOptions {
     interactive?: boolean;
     sourceBranch?: string;
     since?: string;
+    sinceBranch?: string;
     failOnConflict?: boolean;
 }
 
@@ -42,6 +44,7 @@ const cherriCommand = async (configuration: CherriCommandOptions) => {
         interactive: isInteractive,
         sourceBranch,
         since = "1",
+        sinceBranch,
         label,
         failOnConflict = false,
     } = "profile" in configuration
@@ -49,6 +52,13 @@ const cherriCommand = async (configuration: CherriCommandOptions) => {
         : configuration;
 
     await printLogo({ icon: emoji });
+
+    // sinceBranch takes precedence over since if both are provided
+    if (sinceBranch && since !== "1") {
+        console.log(
+            chalk.blue("ℹ Using branch-based cutoff (--since-branch) instead of time-based (--since)")
+        );
+    }
 
     if (!process.env.GITHUB_TOKEN) {
         throw new Error("GITHUB_TOKEN environment variable is not set");
@@ -65,12 +75,21 @@ const cherriCommand = async (configuration: CherriCommandOptions) => {
     );
 
     const cutoffDate = new Date();
-    const timePeriod = parseTimePeriod(since);
-    cutoffDate.setTime(cutoffDate.getTime() - timePeriod.milliseconds);
+    let cutoffDescription = "";
+
+    if (sinceBranch) {
+        const branchCreationDate = getBranchCreationDate(sinceBranch);
+        cutoffDate.setTime(branchCreationDate.getTime());
+        cutoffDescription = `start of branch '${sinceBranch}' (${branchCreationDate.toDateString()})`;
+    } else {
+        const timePeriod = parseTimePeriod(since);
+        cutoffDate.setTime(cutoffDate.getTime() - timePeriod.milliseconds);
+        cutoffDescription = timePeriod.description;
+    }
 
     console.log(
         chalk.cyan(
-            `Cutoff date to ${chalk.bold.yellow(cutoffDate.toDateString())} (${timePeriod.description})\n`,
+            `Cutoff date to ${chalk.bold.yellow(cutoffDate.toDateString())} (${cutoffDescription})\n`,
         ),
     );
 
