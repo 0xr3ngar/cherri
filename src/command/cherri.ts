@@ -9,6 +9,7 @@ import {
 } from "../git";
 import { displays, printLogo } from "../ui";
 import { getConfigurationFromProject } from "./getConfigurationFromProject";
+import { parseTimePeriod } from "../utils/parseTimePeriod";
 
 interface CommonCherriOptions {
     interactive?: boolean;
@@ -64,12 +65,12 @@ const cherriCommand = async (configuration: CherriCommandOptions) => {
     );
 
     const cutoffDate = new Date();
-    const sinceMonths = Number.parseInt(since, 10);
-    cutoffDate.setMonth(cutoffDate.getMonth() - sinceMonths);
+    const timePeriod = parseTimePeriod(since);
+    cutoffDate.setTime(cutoffDate.getTime() - timePeriod.milliseconds);
 
     console.log(
         chalk.cyan(
-            `Cutoff date to ${chalk.bold.yellow(cutoffDate.toDateString())}\n`,
+            `Cutoff date to ${chalk.bold.yellow(cutoffDate.toDateString())} (${timePeriod.description})\n`,
         ),
     );
 
