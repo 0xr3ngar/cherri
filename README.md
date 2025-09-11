@@ -177,6 +177,7 @@ cherri -p <profile-name>
 | `--source-branch` | `-b` | Source branch, defaults to the default branch | No | Auto-detected |
 | `--label` | `-l` | Search for PRs with this exact label (replaces title search) | No | - |
 | `--fail-on-conflict` | - | Exit with error when conflicts are detected instead of prompting for resolution | No | `false` |
+| `--create-pr` | - | Create a PR instead of direct cherry-picking. Optionally specify target branch (defaults to source branch) | No | `false` |
 
 **\* Required unless using `--profile` with a configuration file**
 
@@ -245,6 +246,21 @@ cherri -o your-org -r your-repo -l "cherry-pick"
 cherri -o your-org -r your-repo --fail-on-conflict
 ```
 
+#### Create PR instead of direct cherry-picking
+```bash
+cherri -o your-org -r your-repo --create-pr
+```
+
+#### Create PR targeting a specific branch
+```bash
+cherri -o your-org -r your-repo --create-pr release/v1.0
+```
+
+#### Create PR with specific time period
+```bash
+cherri -o your-org -r your-repo -s 1w --create-pr
+```
+
 #### Combine all options
 ```bash
 cherri -o facebook -r react -s 2 -i -b main -l "hotfix" --fail-on-conflict
@@ -287,6 +303,41 @@ cherri --since-branch release/v1.0  # Since release branch was created
 - **Precise**: Calculations use milliseconds for accuracy
 - **Alternative**: Use `--since-branch` for branch-based cutoffs instead of time calculations
 
+## PR Creation Mode
+
+When using the `--create-pr` flag, Cherri will create a pull request instead of directly cherry-picking commits. This is useful for review workflows where changes need approval before merging.
+
+### How it works:
+1. **Branch Creation**: Creates a new branch with format `cherri/auto-{timestamp}`
+2. **Cherry-picking**: Applies all selected commits to the new branch
+3. **PR Creation**: Creates a pull request from the new branch to your target branch
+4. **Cleanup**: Switches back to your original branch
+
+### Example workflow:
+```bash
+# Create PR for review instead of direct cherry-picking
+cherri -o your-org -r your-repo --create-pr
+
+# Output:
+#   Creating branch: cherri/auto-2025-09-11T12-30-45
+#   Pushing branch: cherri/auto-2025-09-11T12-30-45
+#   Creating pull request...
+#   ✅ PR Created Successfully!
+#   PR: https://github.com/your-org/your-repo/pull/123
+#   Branch: cherri/auto-2025-09-11T12-30-45
+#   Target: main
+```
+
+### PR Details:
+- **Title**: `🍒 Cherry-pick: X PR(s)` (where X is the number of PRs)
+- **Body**: Contains summary of cherry-picked PRs, commit counts, and generation info
+- **Labels**: Automatically tagged as cherry-pick related
+
+This mode is perfect for:
+- **Code Review Requirements**: When your workflow requires PR reviews
+- **Staging Environments**: Creating intermediate PRs for testing
+- **Audit Trails**: Maintaining a record of all cherry-pick operations
+
 ## Search Methods: Title or Labels
 
 Cherri uses one of two search methods (not both simultaneously):
@@ -321,7 +372,9 @@ Cherri automatically detects your repository's default branch (main/master) usin
    - **Interactive mode** (`-i`): Opens checkbox interface to select specific PRs
    - **Non-interactive mode** (default): Processes all found PRs automatically
 
-3. **Collection Phase:**
+3. **Processing Phase:**
+   - **Direct Mode** (default): Cherry-picks commits directly to the target branch
+   - **PR Mode** (`--create-pr`): Creates a new branch, cherry-picks commits, and creates a PR for review
    - Retrieves all commits from each selected PR
    - Shows a summary of PRs and total commits to be processed
 
@@ -397,6 +450,7 @@ cherri -o your-org -r your-repo -l "cherry-pick"
 ✅ **Interactive checkbox interface** - Easy selection with visual feedback \
 ✅ **Flexible search methods** - Search by emoji in titles OR by exact labels \
 ✅ **Branch-based timeframes** - Use branch creation dates instead of calculating time periods \
+✅ **PR creation mode** - Create pull requests instead of direct cherry-picking for review workflows \
 ✅ **Automatic conflict resolution** - Automatically opens your configured merge tool for conflicts \
 ✅ **One-by-one conflict handling** - Processes conflicts individually for focused resolution \
 ✅ **Automatic commit resolution** - Handles rebased and squashed commits by finding matching messages \
