@@ -20,8 +20,8 @@ program
     .option("-o, --owner <owner>", "GitHub repository owner")
     .option("-r, --repo <repo>", "GitHub repository")
     .option(
-        "-s, --since <months>",
-        "Number of months to look back for PRs",
+        "-s, --since <period>",
+        "Time period to look back for PRs (e.g., '1w3d4h', '7d', '2' for 2 months)",
         "1",
     )
     .option("-e, --emoji <emoji>", "Custom emoji for the logo", "🍒")
