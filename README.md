@@ -171,6 +171,7 @@ cherri -p <profile-name>
 | `--owner` | `-o` | GitHub repository owner | Yes* | - |
 | `--repo` | `-r` | GitHub repository name | Yes* | - |
 | `--since` | `-s` | Time period to look back for PRs (e.g., '1w3d4h', '7d', '2' for 2 months) | No | `1` |
+| `--since-branch` | - | Use branch creation date as cutoff (e.g., 'main', 'release/v1.0') - alternative to --since | No | - |
 | `--emoji` | `-e` | Custom emoji to search for in PR titles and display in logo | No | `🍒` |
 | `--interactive` | `-i` | Enable interactive mode for PR selection | No | `false` |
 | `--source-branch` | `-b` | Source branch, defaults to the default branch | No | Auto-detected |
@@ -178,6 +179,8 @@ cherri -p <profile-name>
 | `--fail-on-conflict` | - | Exit with error when conflicts are detected instead of prompting for resolution | No | `false` |
 
 **\* Required unless using `--profile` with a configuration file**
+
+**Note:** Use either `--since` OR `--since-branch`, not both. They serve the same purpose but use different methods to determine the cutoff date for PRs.
 
 ### Examples
 
@@ -204,6 +207,17 @@ cherri -o microsoft -r vscode -s 7d
 #### Look back 2 hours for PRs
 ```bash
 cherri -o microsoft -r vscode -s 2h
+```
+
+#### Alternative: Use branch creation date as cutoff
+```bash
+# Use either --since OR --since-branch, not both
+cherri -o your-org -r your-repo --since-branch main
+```
+
+#### Get all PRs since a release branch was created
+```bash
+cherri -o your-org -r your-repo --since-branch release/v2.0
 ```
 
 #### Use a custom emoji marker
@@ -238,7 +252,7 @@ cherri -o facebook -r react -s 2 -i -b main -l "hotfix" --fail-on-conflict
 
 ## Time Period Formats
 
-The `--since` flag supports flexible time period specifications:
+The `--since` flag supports flexible time period specifications. **Alternatively**, you can use `--since-branch` to use a branch's creation date as the cutoff.
 
 ### Supported Units
 - `w` = weeks
@@ -261,12 +275,17 @@ cherri -s 45m       # 45 minutes ago
 # Backward compatible (bare numbers = months)
 cherri -s 2         # 2 months ago (same as before)
 cherri -s 1         # 1 month ago (default)
+
+# Alternative: Branch-based cutoff
+cherri --since-branch main        # Since main branch was created
+cherri --since-branch release/v1.0  # Since release branch was created
 ```
 
 ### Notes
 - **Backward Compatible**: Bare numbers without units still work as months
 - **Flexible**: Mix and match any combination of time units
 - **Precise**: Calculations use milliseconds for accuracy
+- **Alternative**: Use `--since-branch` for branch-based cutoffs instead of time calculations
 
 ## Search Methods: Title or Labels
 
@@ -293,7 +312,9 @@ Cherri automatically detects your repository's default branch (main/master) usin
 1. **Search Phase:**
    - **Without `--label`**: Searches for merged PRs with the specified emoji in the title
    - **With `--label`**: Searches for merged PRs with the specified label (ignores titles)
-   - Parses the `--since` time period (supports complex formats like '1w3d4h', '7d', or '2' for months)
+   - **Time-based cutoff**: Parses the `--since` time period (supports complex formats like '1w3d4h', '7d', or '2' for months)
+   - **Branch-based cutoff**: When using `--since-branch`, uses the creation date of the specified branch as the cutoff date
+   - **Note**: Use either `--since` OR `--since-branch`, not both - they serve the same purpose
    - Filters PRs merged within the specified timeframe
 
 2. **Selection Phase:**
@@ -375,6 +396,7 @@ cherri -o your-org -r your-repo -l "cherry-pick"
 ✅ **Smart PR selection** - Choose to select specific PRs or process all automatically \
 ✅ **Interactive checkbox interface** - Easy selection with visual feedback \
 ✅ **Flexible search methods** - Search by emoji in titles OR by exact labels \
+✅ **Branch-based timeframes** - Use branch creation dates instead of calculating time periods \
 ✅ **Automatic conflict resolution** - Automatically opens your configured merge tool for conflicts \
 ✅ **One-by-one conflict handling** - Processes conflicts individually for focused resolution \
 ✅ **Automatic commit resolution** - Handles rebased and squashed commits by finding matching messages \
@@ -415,7 +437,8 @@ git cherry-pick --abort
 ### "No PRs found"
 - **Title search**: Check that PRs contain the emoji in their titles
 - **Label search**: Verify PRs have the exact label you're searching for
-- Verify the `--since` timeframe covers when PRs were merged
+- **Time/Branch filters**: Verify the `--since` timeframe or `--since-branch` branch covers when PRs were merged
+- **Note**: Remember to use either `--since` OR `--since-branch`, not both
 - Ensure PRs are actually merged (not just closed)
 
 ### Conflict resolution
