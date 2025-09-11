@@ -23,6 +23,9 @@ inputs:
     description: "Number of months to look back for PRs"
     required: false
     default: "1"
+  since-branch:
+    description: "Branch to use as cutoff date instead of time-based since"
+    required: false
   emoji:
     description: "Custom emoji for the logo"
     required: false
@@ -37,6 +40,10 @@ inputs:
     description: "Exit with error when conflicts are detected instead of prompting for resolution"
     required: false
     default: "true"
+  create-pr:
+    description: "Create a PR after cherry-picking"
+    required: false
+    default: "false"
   github-token:
     description: "GitHub token with repo access"
     required: true
@@ -60,7 +67,18 @@ runs:
       run: |
         git fetch origin ${{ inputs.target }}:${{ inputs.target }} || git checkout -b ${{ inputs.target }} origin/${{ inputs.target }}
         git checkout ${{ inputs.target }}
-        cherri -o "${{ inputs.owner }}" -r "${{ inputs.repo }}" -s "${{ inputs.since }}" -e "${{ inputs.emoji }}" \
-          ${{ inputs.interactive == 'true' && '-i' || '' }} \
-          ${{ inputs.source-branch && format('-b "{0}"', inputs.source-branch) || '' }} \
-          ${{ inputs.label && format('-l "{0}"', inputs.label) || '' }}
+        if [ -n "${{ inputs.profile }}" ]; then
+          cherri --profile "${{ inputs.profile }}" -s "${{ inputs.since }}" \
+            ${{ inputs.source-branch && format('-b "{0}"', inputs.source-branch) || '' }} \
+            ${{ inputs.label && format('-l "{0}"', inputs.label) || '' }} \
+            ${{ inputs.fail-on-conflict == 'true' && '--fail-on-conflict' || '' }} \
+            ${{ inputs.since-branch && format('--since-branch "{0}"', inputs.since-branch) || '' }} \
+            ${{ inputs.create-pr == 'true' && format('--create-pr "{0}"', inputs.target) || '' }}
+        else
+          cherri -o "${{ inputs.owner }}" -r "${{ inputs.repo }}" -s "${{ inputs.since }}" -e "${{ inputs.emoji }}" \
+            ${{ inputs.source-branch && format('-b "{0}"', inputs.source-branch) || '' }} \
+            ${{ inputs.label && format('-l "{0}"', inputs.label) || '' }} \
+            ${{ inputs.fail-on-conflict == 'true' && '--fail-on-conflict' || '' }} \
+            ${{ inputs.since-branch && format('--since-branch "{0}"', inputs.since-branch) || '' }} \
+            ${{ inputs.create-pr == 'true' && format('--create-pr "{0}"', inputs.target) || '' }}
+        fi
