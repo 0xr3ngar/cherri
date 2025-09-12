@@ -497,16 +497,12 @@ git cherry-pick --abort
 
 ### Conflict resolution
 - **`merge-tool` not configured**: Run `git config merge.tool <tool>` to set your preferred merge tool
-- **Merge tool fails**: The tool will fall back to manual conflict resolution
+- **Merge tool fails**: The tool will fall back to manual conflict resolution, but all changes you made while using the merge-tool will be reverted.
 
 ## Upcoming Features
 
 🚧 **In Development:**
 - **Dry run mode** - Test cherry-picks without making changes, detect conflicts early
-- **PR creation mode** - Create pull requests instead of direct cherry-picking  
-- **Slack notifications** - Get notified when cherry-picks complete or have conflicts
-- **Auto-generated release notes** - Generate release notes from cherry-picked PRs
-- **Workflow profiles** - Save configurations for different scenarios (staging, prod, etc.)
 
 ## License
 
