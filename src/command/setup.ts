@@ -88,7 +88,9 @@ export const setupCherriCommand = async (
     const prTargetBranch =
         typeof createPr === "string" ? createPr : finalBranch;
 
-    execSync(`git checkout ${prTargetBranch}`, { stdio: "pipe" });
+    if (typeof createPr === "string") {
+        execSync(`git checkout ${prTargetBranch}`, { stdio: "pipe" });
+    }
 
     console.log(
         `${chalk.cyan("Using branch")} ${chalk.bold.yellow(finalBranch)}\n`,
