@@ -37,15 +37,21 @@ export const processCommits = async ({
         let prSuccessCount = 0;
 
         for (const commit of commits) {
-            const escapedMessage = commit.commit.message
-                .split("\n")[0]
-                .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-            const exists = execSync(
-                `git log --grep="${escapedMessage}" --oneline -1`,
-                { encoding: "utf8", stdio: "pipe" },
-            ).trim();
+            const searchMessage = commit.commit.message.split("\n")[0];
 
-            if (exists) {
+            let commitExists = false;
+            try {
+                const result = execSync(
+                    `git log --grep="${searchMessage}" --fixed-strings --format="%H" -n 1`,
+                    { encoding: "utf8", stdio: "pipe" },
+                ).trim();
+
+                commitExists = result.length > 0;
+            } catch (_) {
+                commitExists = false;
+            }
+
+            if (commitExists) {
                 console.log(
                     `    ${chalk.gray("○")} ${chalk.dim(commit.sha.slice(0, 7))} already exists`,
                 );
