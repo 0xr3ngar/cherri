@@ -4,6 +4,7 @@ import type { Endpoints } from "@octokit/types";
 import chalk from "chalk";
 import type { Ora } from "ora";
 import { spinners } from "../ui";
+import { getDefaultBranch } from "../constants";
 import { assertDefined } from "../util/assert";
 
 interface GetAllCommitsFromPullRequestOptions {
@@ -49,7 +50,7 @@ const findCommitByMessage = (
         const searchMessage = message.split("\n")[0];
 
         const result = execSync(
-            `git log ${branch} --grep="${searchMessage.replace(/"/g, '\\"')}" --format="%H" -n 1`,
+            `git log ${branch} --grep="${searchMessage.replace(/"/g, '\\"')}" --fixed-strings --format="%H" -n 1`,
             { encoding: "utf8", stdio: "pipe" },
         ).trim();
 
@@ -89,8 +90,24 @@ const handleMissingCommit = async (
             return { found: true, alternativeSha };
         }
 
+        const defaultBranch = getDefaultBranch() ?? "main";
+
+        try {
+            execSync(`git fetch origin ${defaultBranch}`, { stdio: "pipe" });
+        } catch {}
+
+        const altOnDefault = findCommitByMessage(
+            commit.commit.message,
+            `origin/${defaultBranch}`,
+        );
+
+        if (altOnDefault) {
+            spinner.text = `Found commit with same message on ${defaultBranch}: ${chalk.yellow(altOnDefault.slice(0, 7))}`;
+            return { found: true, alternativeSha: altOnDefault };
+        }
+
         spinner.fail(
-            `Commit ${chalk.gray(commit.sha.slice(0, 7))} not found and no matching commit message found in ${sourceBranch} branch.`,
+            `Commit ${chalk.gray(commit.sha.slice(0, 7))} not found and no matching commit message found in ${sourceBranch} or default branch.`,
         );
         console.log(
             chalk.yellow(
