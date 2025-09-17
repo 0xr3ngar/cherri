@@ -75,13 +75,13 @@ const handleMissingCommit = async (
     spinner.text = `Commit ${chalk.gray(commit.sha.slice(0, 7))} not found locally, fetching ${sourceBranch} branch...`;
 
     try {
-        execSync(`git fetch origin ${sourceBranch}:${sourceBranch}`, {
+        execSync(`git fetch origin ${sourceBranch}`, {
             stdio: "pipe",
         });
 
         const alternativeSha = findCommitByMessage(
             commit.commit.message,
-            sourceBranch,
+            `origin/${sourceBranch}`,
         );
 
         if (alternativeSha) {
