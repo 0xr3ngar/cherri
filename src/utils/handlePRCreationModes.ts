@@ -46,7 +46,6 @@ export const handlePRCreationMode = async ({
     console.log(chalk.blue(`  Creating branch: ${prBranchName}`));
 
     execSync(`git checkout -b ${prBranchName}`, { stdio: "pipe" });
-    execSync(`git push -u origin ${prBranchName}`, { stdio: "pipe" });
 
     const { successCount, skipCount, pickedPRs, shouldStop } =
         await processCommits({
