@@ -4,7 +4,7 @@ import type { Endpoints } from "@octokit/types";
 import chalk from "chalk";
 import type { Ora } from "ora";
 import { spinners } from "../ui";
-import { getDefaultBranch } from "../constants";
+import { getDefaultBranch, WELL_KNOWN_BRANCHES } from "../constants";
 import { assertDefined } from "../util/assert";
 
 interface GetAllCommitsFromPullRequestOptions {
@@ -72,7 +72,7 @@ const handleMissingCommit = async (
     commit: Commit,
     spinner: Ora,
     sourceBranch: string,
-): Promise<{ found: boolean; alternativeSha?: string }> => {
+): Promise<{ found: boolean; alternativeSha?: string; branch?: string }> => {
     spinner.text = `Commit ${chalk.gray(commit.sha.slice(0, 7))} not found locally, fetching ${sourceBranch} branch...`;
 
     try {
@@ -87,39 +87,56 @@ const handleMissingCommit = async (
 
         if (alternativeSha) {
             spinner.text = `Found commit with same message: ${chalk.yellow(alternativeSha.slice(0, 7))}`;
-            return { found: true, alternativeSha };
+            return { found: true, alternativeSha, branch: sourceBranch };
         }
-
-        const defaultBranch = getDefaultBranch() ?? "main";
-
-        try {
-            execSync(`git fetch origin ${defaultBranch}`, { stdio: "pipe" });
-        } catch {}
-
-        const altOnDefault = findCommitByMessage(
-            commit.commit.message,
-            `origin/${defaultBranch}`,
-        );
-
-        if (altOnDefault) {
-            spinner.text = `Found commit with same message on ${defaultBranch}: ${chalk.yellow(altOnDefault.slice(0, 7))}`;
-            return { found: true, alternativeSha: altOnDefault };
-        }
-
-        spinner.fail(
-            `Commit ${chalk.gray(commit.sha.slice(0, 7))} not found and no matching commit message found in ${sourceBranch} or default branch.`,
-        );
-        console.log(
-            chalk.yellow(
-                "  This PR may have been squashed or merged differently.",
-            ),
-        );
-        console.log(chalk.yellow("  Skipping this commit.\n"));
-        return { found: false };
-    } catch (fetchError) {
-        spinner.fail(`Failed to fetch ${sourceBranch} branch: ${fetchError}`);
-        return { found: false };
+    } catch {
+        spinner.text = `Failed to fetch ${sourceBranch} branch, trying default branches...`;
     }
+
+    const defaultBranch = getDefaultBranch() ?? "main";
+
+    const branchesToTry = [
+        defaultBranch,
+        ...WELL_KNOWN_BRANCHES.filter((branch) => branch !== defaultBranch),
+    ];
+
+    let altOnDefault: string | null = null;
+    let altOnDefaultBranch: string | undefined;
+    for (const branch of branchesToTry) {
+        try {
+            execSync(`git fetch origin ${branch}`, { stdio: "pipe" });
+        } catch {
+            continue;
+        }
+
+        const found = findCommitByMessage(
+            commit.commit.message,
+            `origin/${branch}`,
+        );
+        if (found) {
+            altOnDefault = found;
+            spinner.text = `Found commit with same message on ${branch}: ${chalk.yellow(altOnDefault.slice(0, 7))} (${branch})`;
+            altOnDefaultBranch = branch;
+            break;
+        }
+    }
+
+    if (altOnDefault) {
+        return {
+            found: true,
+            alternativeSha: altOnDefault,
+            branch: altOnDefaultBranch,
+        };
+    }
+
+    spinner.fail(
+        `Commit ${chalk.gray(commit.sha.slice(0, 7))} not found and no matching commit message found in ${sourceBranch} or any well-known branch (${WELL_KNOWN_BRANCHES.length} tried: ${WELL_KNOWN_BRANCHES.join(", ")}).`,
+    );
+    console.log(
+        chalk.yellow("  This PR may have been squashed or merged differently."),
+    );
+    console.log(chalk.yellow("  Skipping this commit.\n"));
+    return { found: false };
 };
 
 const handleMergeToolResolve = async (
@@ -328,7 +345,7 @@ const cherryPickCommit = async (
                 const newSha = executeCherryPick(commitSha);
 
                 spinner.succeed(
-                    `Cherry-picked ${chalk.gray(commit.sha.slice(0, 7))} → ${chalk.yellow(commitSha.slice(0, 7))} → ${chalk.green(newSha.slice(0, 7))}`,
+                    `Cherry-picked ${chalk.gray(commit.sha.slice(0, 7))} → ${chalk.yellow(commitSha.slice(0, 7))} → ${chalk.green(newSha.slice(0, 7))} (${result.branch})`,
                 );
 
                 return { success: true, newSha };

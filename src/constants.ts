@@ -18,3 +18,10 @@ export const getDefaultBranch = () => {
         return undefined;
     }
 };
+
+export const WELL_KNOWN_BRANCHES = [
+    "main",
+    "master",
+    "develop",
+    "dev",
+] as const;
