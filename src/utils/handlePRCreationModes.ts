@@ -70,13 +70,21 @@ export const handlePRCreationMode = async ({
         process.exit(1);
     }
 
-    console.log(chalk.blue(`  Pushing branch: ${prBranchName}`));
-
-    execSync(`git push -u origin ${prBranchName}`, { stdio: "pipe" });
-
     const actuallyPickedPRs = finalSelectedPRs.filter(
         (pr: PullsListResponse["data"][0]) => pickedPRs?.has(pr.number),
     );
+
+    if (actuallyPickedPRs.length === 0) {
+        console.log(chalk.red("  No PRs were picked. Exiting.\n"));
+        execSync(`git checkout ${finalBranch}`, { stdio: "pipe" });
+        console.log(chalk.blue("Deleting branch: ", prBranchName));
+        execSync(`git branch -D ${prBranchName}`, { stdio: "pipe" });
+
+        process.exit(1);
+    }
+
+    console.log(chalk.blue(`  Pushing branch: ${prBranchName}`));
+    execSync(`git push -u origin ${prBranchName}`, { stdio: "pipe" });
     const prTitle = `Cherri: ${actuallyPickedPRs.length} PR${actuallyPickedPRs.length > 1 ? "s" : ""} (${finalSelectedPRs.length} selected)`;
     const prBody = generatePrBody(
         emoji,
