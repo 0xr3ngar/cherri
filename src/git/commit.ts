@@ -27,6 +27,19 @@ interface ConflictResolution {
     action: "continue" | "skip" | "abort";
 }
 
+// biome-ignore lint: TODO: error type doesnt have stderr
+function isCherryPickConflict(error: any) {
+    const msg = [
+        error?.stderr?.toString?.() ?? "",
+        error?.stdout?.toString?.() ?? "",
+        error?.message ?? "",
+    ].join(" ");
+
+    return /CONFLICT|could not apply|after resolving the conflicts|Merge conflict|merge/i.test(
+        msg,
+    );
+}
+
 const getAllCommitsFromPullRequest = async ({
     client,
     owner,
@@ -354,7 +367,7 @@ const cherryPickCommit = async (
             }
         }
 
-        if (_currentError.stderr?.includes("conflict")) {
+        if (isCherryPickConflict(_currentError)) {
             const commitSha = chalk.gray(commit.sha.slice(0, 7));
             const alternateShaText = usedAlternateSha
                 ? " (found by message)"
@@ -379,6 +392,14 @@ const cherryPickCommit = async (
         spinner.fail(
             `Failed to cherry-pick ${chalk.gray(commitSha.slice(0, 7))}${usedAlternateSha ? " (found by message)" : ""}: ${chalk.yellow("conflicts detected")}`,
         );
+
+        if (failOnConflict) {
+            spinner.fail(
+                `Conflict detected in ${commitSha}: failing due to --fail-on-conflict option`,
+            );
+
+            return { success: false, aborted: true };
+        }
 
         const resolution = await promptConflictResolution();
         return executeConflictResolution(resolution, commitSha);

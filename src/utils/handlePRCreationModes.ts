@@ -67,7 +67,7 @@ export const handlePRCreationMode = async ({
         execSync(`git checkout ${finalBranch}`, { stdio: "pipe" });
         execSync(`git branch -D ${prBranchName}`, { stdio: "pipe" });
         console.log(chalk.red("  PR creation aborted by user. Exiting.\n"));
-        return;
+        process.exit(1);
     }
 
     console.log(chalk.blue(`  Pushing branch: ${prBranchName}`));
