@@ -1,7 +1,7 @@
 {
     "name": "cherri",
     "description": "Automated cherry-picking for PRs",
-    "version": "1.4.10",
+    "version": "1.4.11",
     "main": "dist/index.js",
     "license": "MIT",
     "files": [
@@ -43,13 +43,13 @@
         "build": "bun build ./src/index.ts --outdir dist --target node --minify --sourcemap"
     },
     "type": "module",
-    "homepage": "https://github.com/bnn16/cherri",
+    "homepage": "https://github.com/0xr3ngar/cherri",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/bnn16/cherri.git"
+        "url": "git+https://github.com/0xr3ngar/cherri.git"
     },
     "bugs": {
-        "url": "https://github.com/bnn16/cherri/issues"
+        "url": "https://github.com/0xr3ngar/cherri/issues"
     },
     "devDependencies": {
         "@biomejs/biome": "^2.2.3",
