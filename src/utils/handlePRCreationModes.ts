@@ -80,7 +80,7 @@ export const handlePRCreationMode = async ({
         console.log(chalk.blue("Deleting branch: ", prBranchName));
         execSync(`git branch -D ${prBranchName}`, { stdio: "pipe" });
 
-        process.exit(1);
+        process.exit(0);
     }
 
     console.log(chalk.blue(`  Pushing branch: ${prBranchName}`));
