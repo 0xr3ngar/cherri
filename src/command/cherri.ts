@@ -25,6 +25,7 @@ export interface CherriCommandWithoutProjectOptions
     repo: string;
     emoji: string;
     label?: string;
+    prTitle?: string;
 }
 
 type CherriCommandOptions =
@@ -76,6 +77,7 @@ export const cherriCommand = async (configuration: CherriCommandOptions) => {
               client,
               owner: setup.owner,
               repo: setup.repo,
+              prTitle: setup.prTitle,
           })
         : await handleDirectCherryPickMode({
               allCommits,
