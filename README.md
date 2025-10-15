@@ -176,6 +176,7 @@ cherri -p <profile-name>
 | `--since-branch` | - | Use branch creation date as cutoff (e.g., 'main', 'release/v1.0') - alternative to --since | No | - |
 | `--emoji` | `-e` | Custom emoji to search for in PR titles and display in logo | No | `🍒` |
 | `--interactive` | `-i` | Enable interactive mode for PR selection | No | `false` |
+| `--select-commits` | - | Interactively select individual commits from each PR (requires `-i`) | No | `false` |
 | `--source-branch` | `-b` | Source branch, defaults to the default branch | No | Auto-detected |
 | `--label` | `-l` | Search for PRs with this exact label (replaces title search) | No | - |
 | `--fail-on-conflict` | - | Exit with error when conflicts are detected instead of prompting for resolution | No | `false` |
@@ -231,6 +232,11 @@ cherri -o your-org -r your-repo -e "🚀"
 #### Interactive mode - manually select PRs
 ```bash
 cherri -o microsoft -r vscode -i
+```
+
+#### Interactive commit selection - select specific commits from each PR
+```bash
+cherri -o your-org -r your-repo -i --select-commits
 ```
 
 #### Specify custom source branch
@@ -424,6 +430,36 @@ Selected 1 PRs:
 - Use **ENTER** to confirm selection
 - Use arrow keys to navigate
 
+### Interactive Commit Selection
+
+When you use the `--select-commits` flag (requires `-i`), you can select specific commits from each PR:
+
+```bash
+cherri -o your-org -r your-repo -i --select-commits
+```
+
+**Workflow:**
+1. First, select which PRs to cherry-pick (standard interactive mode)
+2. Then, for each selected PR, choose which commits to include:
+
+```
+[PR 1/3] #123: Fix authentication (5 commits)
+? Select commits to cherry-pick:
+❯◉ a1b2c3d feat: Add login validation
+ ◉ d4e5f6g fix: Handle edge case  
+ ◯ g7h8i9j test: Add unit tests (John Doe)
+ ◉ k1l2m3n docs: Update README
+ ◯ o4p5q6r refactor: Clean up code
+
+✓ Selected 3/5 commits from PR #123
+```
+
+**Use Cases:**
+- Cherry-pick only bug fixes, skipping tests or documentation
+- Exclude specific commits that might cause conflicts
+- Fine-grained control over what gets backported
+- Skip commits that are already present in target branch
+
 ## Marking PRs for Cherry-picking
 
 Choose one of these two methods to mark PRs for cherry-picking:
@@ -450,6 +486,7 @@ cherri -o your-org -r your-repo -l "cherry-pick"
 
 ✅ **Smart PR selection** - Choose to select specific PRs or process all automatically \
 ✅ **Interactive checkbox interface** - Easy selection with visual feedback \
+✅ **Granular commit selection** - Pick individual commits from each PR for fine-grained control \
 ✅ **Flexible search methods** - Search by emoji in titles OR by exact labels \
 ✅ **Branch-based timeframes** - Use branch creation dates instead of calculating time periods \
 ✅ **PR creation mode** - Create pull requests instead of direct cherry-picking for review workflows \
