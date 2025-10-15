@@ -47,6 +47,11 @@ program
         "--create-pr [target]",
         "Create a PR instead of direct cherry-picking (creates new branch and PR for review). Optionally specify target branch",
     )
+    .option(
+        "--select-commits",
+        "Interactively select individual commits from each PR (requires -i/--interactive)",
+        false,
+    )
     .action((options) => {
         if (options.profile) {
             if (options.owner || options.repo) {
