@@ -15,6 +15,7 @@ interface CommonCherriOptions {
     sinceBranch?: string;
     failOnConflict?: boolean;
     createPr?: boolean | string;
+    selectCommits?: boolean;
 }
 
 interface CherriCommandProjectFileOptions extends CommonCherriOptions {
@@ -47,6 +48,7 @@ export interface CherriSetupResult {
     isInteractive: boolean;
     failOnConflict: boolean;
     createPr: boolean | string;
+    selectCommits: boolean;
 }
 
 export const setupCherriCommand = async (
@@ -64,11 +66,20 @@ export const setupCherriCommand = async (
         prTitle,
         failOnConflict = false,
         createPr = false,
+        selectCommits = false,
     } = "profile" in configuration
         ? getConfigurationFromProject(configuration)
         : configuration;
 
     await printLogo({ icon: emoji });
+
+    if (selectCommits && !isInteractive) {
+        console.log(
+            chalk.yellow(
+                "⚠️  Warning: --select-commits requires -i/--interactive mode. Ignoring --select-commits.\n",
+            ),
+        );
+    }
 
     // sinceBranch takes precedence over since if both are provided
     if (sinceBranch && since !== "1") {
@@ -132,5 +143,6 @@ export const setupCherriCommand = async (
         isInteractive,
         failOnConflict,
         createPr,
+        selectCommits: selectCommits && isInteractive,
     };
 };
