@@ -102,7 +102,8 @@ Create a `cherri.json` file in your project root:
         "owner": "your-org",
         "repo": "your-repo",
         "emoji": "🍒",
-        "label": "cherry-pick"
+        "label": "cherry-pick",
+        "prTitle": "Custom Release PR Title"
       }
     },
     {
@@ -143,6 +144,7 @@ Each profile's `configuration` object supports:
 | `repo` | GitHub repository name | Yes | - |
 | `emoji` | Emoji to search for in PR titles | No | `🍒` |
 | `label` | Search for PRs with this label | No | - |
+| `prTitle` | Custom title for the created PR (only used with `--create-pr`) | No | `Cherri: X PR(s) (Y selected)` |
 
 **Notes:**
 - When using `-p`, you cannot specify `--owner` or `--repo` flags (they come from the profile)
