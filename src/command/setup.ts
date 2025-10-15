@@ -28,6 +28,7 @@ interface CherriCommandWithoutProjectOptions extends CommonCherriOptions {
     emoji: string;
     label?: string;
     prTitle?: string;
+    prBodyTemplate?: string;
 }
 
 type CherriCommandOptions =
@@ -45,6 +46,7 @@ export interface CherriSetupResult {
     cutoffDescription: string;
     label?: string;
     prTitle?: string;
+    prBodyTemplate?: string;
     isInteractive: boolean;
     failOnConflict: boolean;
     createPr: boolean | string;
@@ -64,6 +66,7 @@ export const setupCherriCommand = async (
         sinceBranch,
         label,
         prTitle,
+        prBodyTemplate,
         failOnConflict = false,
         createPr = false,
         selectCommits = false,
@@ -140,6 +143,7 @@ export const setupCherriCommand = async (
         cutoffDescription,
         label,
         prTitle,
+        prBodyTemplate,
         isInteractive,
         failOnConflict,
         createPr,

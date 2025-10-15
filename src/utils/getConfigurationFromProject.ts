@@ -17,6 +17,7 @@ const ProjectFileStructure = z.object({
                 emoji: z.string(),
                 label: z.string().optional(),
                 prTitle: z.string().optional(),
+                prBodyTemplate: z.string().optional(),
             }),
         }),
     ),
@@ -75,5 +76,6 @@ export function getConfigurationFromProject({
         emoji: targetProfile.configuration.emoji,
         label: targetProfile.configuration.label,
         prTitle: targetProfile.configuration.prTitle,
+        prBodyTemplate: targetProfile.configuration.prBodyTemplate,
     };
 }
