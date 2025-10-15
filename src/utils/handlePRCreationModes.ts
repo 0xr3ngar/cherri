@@ -16,6 +16,7 @@ interface HandlePRCreationModeParams {
     client: Octokit;
     owner: string;
     repo: string;
+    prTitle?: string;
 }
 
 interface HandleDirectCherryPickModeParams {
@@ -34,6 +35,7 @@ export const handlePRCreationMode = async ({
     client,
     owner,
     repo,
+    prTitle: customPrTitle,
 }: HandlePRCreationModeParams) => {
     console.log(chalk.cyan("\n  Creating PR with cherry-picked commits...\n"));
 
@@ -85,7 +87,9 @@ export const handlePRCreationMode = async ({
 
     console.log(chalk.blue(`  Pushing branch: ${prBranchName}`));
     execSync(`git push -u origin ${prBranchName}`, { stdio: "pipe" });
-    const prTitle = `Cherri: ${actuallyPickedPRs.length} PR${actuallyPickedPRs.length > 1 ? "s" : ""} (${finalSelectedPRs.length} selected)`;
+    const prTitle =
+        customPrTitle ??
+        `Cherri: ${actuallyPickedPRs.length} PR${actuallyPickedPRs.length > 1 ? "s" : ""} (${finalSelectedPRs.length} selected)`;
     const prBody = generatePrBody(
         emoji,
         actuallyPickedPRs,
