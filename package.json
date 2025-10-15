@@ -40,7 +40,10 @@
         "biome:format": "biome format --write ./src/",
         "biome:lint": "biome lint --write ./src/",
         "knip": "knip",
-        "build": "bun build ./src/index.ts --outdir dist --target node --minify --sourcemap"
+        "build": "bun build ./src/index.ts --outdir dist --target node --minify --sourcemap",
+        "test": "bun test",
+        "test:watch": "bun test --watch",
+        "test:coverage": "bun test --coverage"
     },
     "type": "module",
     "homepage": "https://github.com/0xr3ngar/cherri",
