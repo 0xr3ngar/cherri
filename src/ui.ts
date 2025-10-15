@@ -119,6 +119,74 @@ const messages = {
 };
 
 const displays = {
+    interactiveCommitSelection: async (
+        pr: { number: number; title: string },
+        commits: Commit[],
+        prIndex: number,
+        totalPRs: number,
+    ) => {
+        const progress = chalk.dim(`[PR ${prIndex + 1}/${totalPRs}]`);
+        const prTitle =
+            pr.title.length > MAX_TITLE_LENGTH
+                ? `${pr.title.substring(0, TRUNCATION_LENGTH)}...`
+                : pr.title;
+
+        console.log(
+            `\n${progress} ${chalk.cyan(`#${pr.number}`)}: ${prTitle} ${chalk.dim(`(${commits.length} commits)`)}`,
+        );
+
+        const choices = commits.map((commit) => {
+            const sha = chalk.gray(commit.sha.slice(0, 7));
+            const message = commit.commit.message.split("\n")[0];
+            const truncatedMessage =
+                message.length > 60
+                    ? `${message.substring(0, 57)}...`
+                    : message;
+
+            const author = commit.commit.author?.name
+                ? ` ${chalk.dim(`(${commit.commit.author.name})`)}`
+                : "";
+
+            return {
+                name: `${sha} ${truncatedMessage}${author}`,
+                value: commit,
+                checked: true,
+            };
+        });
+
+        const selectedCommits = await checkbox(
+            {
+                message: "Select commits to cherry-pick:",
+                choices,
+            },
+            {
+                clearPromptOnDone: true,
+            },
+        );
+
+        if (selectedCommits.length === 0) {
+            console.log(
+                chalk.yellow(
+                    `  ⊘ Skipped PR #${pr.number} (no commits selected)\n`,
+                ),
+            );
+        } else if (selectedCommits.length < commits.length) {
+            console.log(
+                chalk.green(
+                    `  ✓ Selected ${chalk.bold(selectedCommits.length)}/${commits.length} commits from PR #${pr.number}\n`,
+                ),
+            );
+        } else {
+            console.log(
+                chalk.green(
+                    `  ✓ Selected all ${chalk.bold(commits.length)} commits from PR #${pr.number}\n`,
+                ),
+            );
+        }
+
+        return selectedCommits;
+    },
+
     interactivePRSelection: async (prs: PullsListResponse["data"]) => {
         const choices = prs.map((pr) => {
             const title =

@@ -1,6 +1,9 @@
 import { setupCherriCommand } from "./setup";
 import { fetchAndSelectPRs } from "../utils/fetchAndSelectPRs";
-import { fetchCommitsForPRs } from "../utils/fetchCommitsForPRs";
+import {
+    fetchCommitsForPRs,
+    selectCommitsInteractively,
+} from "../utils/fetchCommitsForPRs";
 import {
     handlePRCreationMode,
     handleDirectCherryPickMode,
@@ -13,6 +16,7 @@ interface CommonCherriOptions {
     sinceBranch?: string;
     failOnConflict?: boolean;
     createPr?: boolean | string;
+    selectCommits?: boolean;
 }
 
 export interface CherriCommandProjectFileOptions extends CommonCherriOptions {
@@ -59,12 +63,20 @@ export const cherriCommand = async (configuration: CherriCommandOptions) => {
 
     const { finalSelectedPRs } = prSelection;
 
-    const allCommits = await fetchCommitsForPRs(
+    let allCommits = await fetchCommitsForPRs(
         client,
         setup.owner,
         setup.repo,
         finalSelectedPRs,
     );
+
+    if (setup.selectCommits) {
+        allCommits = await selectCommitsInteractively(allCommits);
+
+        if (allCommits.length === 0) {
+            return;
+        }
+    }
 
     const result = setup.createPr
         ? await handlePRCreationMode({
