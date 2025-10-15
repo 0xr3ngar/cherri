@@ -17,6 +17,7 @@ interface HandlePRCreationModeParams {
     owner: string;
     repo: string;
     prTitle?: string;
+    prBodyTemplate?: string;
 }
 
 interface HandleDirectCherryPickModeParams {
@@ -36,6 +37,7 @@ export const handlePRCreationMode = async ({
     owner,
     repo,
     prTitle: customPrTitle,
+    prBodyTemplate,
 }: HandlePRCreationModeParams) => {
     console.log(chalk.cyan("\n  Creating PR with cherry-picked commits...\n"));
 
@@ -96,6 +98,11 @@ export const handlePRCreationMode = async ({
         finalSelectedPRs.length,
         successCount,
         skipCount,
+        prBodyTemplate,
+        prTargetBranch,
+        finalBranch,
+        owner,
+        repo,
     );
 
     console.log(chalk.blue("  Creating pull request..."));
